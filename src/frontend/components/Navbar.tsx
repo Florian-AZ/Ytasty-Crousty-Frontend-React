@@ -13,6 +13,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 //import ColorModeIconDropdown from '.././theme/ColorModeIconDropdown';
 import Logo from './Logo';
+import { ListItemButton } from '@mui/material';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: 'flex',
@@ -107,23 +108,20 @@ export default function Navbar() {
                                     </IconButton>
                                 </Box>
 
-                                <MenuItem>Features</MenuItem>
-                                <MenuItem>Testimonials</MenuItem>
-                                <MenuItem>Highlights</MenuItem>
-                                <MenuItem>Pricing</MenuItem>
-                                <MenuItem>FAQ</MenuItem>
-                                <MenuItem>Blog</MenuItem>
+                                <ListItemButton>Nos Restaurants</ListItemButton>
+                                <ListItemButton> Nos Plats</ListItemButton>
+                                <ListItemButton>Commander</ListItemButton>
                                 <Divider sx={{ my: 3 }} />
-                                <MenuItem>
+                                <ListItemButton>
                                     <Button color="primary" variant="contained" fullWidth>
                                         Sign up
                                     </Button>
-                                </MenuItem>
-                                <MenuItem>
+                                </ListItemButton>
+                                <ListItemButton>
                                     <Button color="primary" variant="outlined" fullWidth>
                                         Sign in
                                     </Button>
-                                </MenuItem>
+                                </ListItemButton>
                             </Box>
                         </Drawer>
                     </Box>

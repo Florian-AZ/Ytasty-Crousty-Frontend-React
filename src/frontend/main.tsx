@@ -30,16 +30,16 @@ async function getUsers() {
     }
 }
 
-interface RestaurantsResponse {
-    restaurants: Restaurant[];
-}
+
 
 async function getRestaurants() {
     try {
         const url = `${API_URL}/restaurants`
-        const response = await axios.get<RestaurantsResponse>(url);
-        store.dispatch(setRestaurants(response.data.restaurants))
+        const response = await axios.get<Restaurant[]>(url);
+        store.dispatch(setRestaurants(response.data))
         console.log("axios : appel restaurants")
+        console.log(response.data)
+
     } catch (e) {
         console.log(e);
     }

@@ -1,9 +1,9 @@
 export interface Restaurant {
-    id : number,
-    name : string,
-    city : string,
-    address : string,
-    is_open : boolean,
-    opening_hours : string,
-    contact : string,
+    id: number | null;
+    name: string | null;
+    city: string | null;
+    address: string | null;
+    is_open: boolean | null;
+    opening_hours: string | null
+    contact: string | null
 }
