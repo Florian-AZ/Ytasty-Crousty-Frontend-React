@@ -1,12 +1,19 @@
-import { createRoot } from 'react-dom/client'
-import { RouterProvider } from "react-router/dom"
-import './pages/css/index.css'
-import { Provider } from "react-redux";
-import { store } from "./store/store.ts";
-import route from "./routes/route.tsx";
+import { createRoot } from 'react-dom/client';
+import { createBrowserRouter } from "react-router";
+import { RouterProvider } from "react-router/dom";
+import App from './pages/App';
+
+const router = createBrowserRouter([
+    {
+        children: [{
+            path: '/',
+            element: <App />,
+        }]
+    }
+]);
 
 createRoot(document.getElementById('root')!).render(
-    <Provider store={store}>
-        <RouterProvider router={route} />
-    </Provider>
-)
+    <RouterProvider router={router} />
+);
+
+
