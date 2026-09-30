@@ -14,19 +14,6 @@ from backend.routers.restaurants import router as restaurant_router
 from backend.routers.products import router as produit_router
 from backend.routers.orders import router as order_router
 
-# Origines autorisées à appeler l'API depuis un navigateur, séparées par des virgules.
-# localhost et 127.0.0.1 sont deux origines différentes pour le navigateur : on déclare les deux.
-CORS_ORIGINS = os.environ.get(
-    "CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173"
-).split(",")
-
-# CORS : autorise le front (autre port = autre origine) à lire les réponses de l'API
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_methods=["*"],   # GET, POST, PATCH, DELETE et la requête OPTIONS de vérification
-    allow_headers=["*"],   # dont Authorization (le JWT) et Content-Type
-)
 
 
 # asynccontextmanager permet de lancer des fonctions au lancement de l'app et à sa fermeture.
@@ -70,6 +57,22 @@ app = FastAPI(title="Ytasty Crousty API - Groupe 3", lifespan=lifespan, version=
                   "Réalisation par RIVET Emrick - étudiant IA & DATA B2 Sophia Ynov Campus"
               ),
               )
+
+# Origines autorisées à appeler l'API depuis un navigateur, séparées par des virgules.
+# localhost et 127.0.0.1 sont deux origines différentes pour le navigateur : on déclare les deux.
+CORS_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+# CORS : autorise le front (autre port = autre origine) à lire les réponses de l'API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Route /auth
 app.include_router(auth_router)
