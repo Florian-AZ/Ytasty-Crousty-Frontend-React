@@ -1,82 +1,77 @@
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from "react-router/dom"
-import './pages/css/app.css'
+import './pages/css/App.css'
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 import route from "./routes/route.tsx";
-import type {User} from "./types/user.ts";
-import {setUsers} from "./store/reducers/users.ts";
-import axios from "axios";
-import type {Restaurant} from "./types/restaurant.ts";
-import {setRestaurants} from "./store/reducers/restaurants.ts";
-import {setProduct} from "./store/reducers/products.ts";
-import type {Product} from "./types/produit.ts";
-import {setLoading} from "./store/reducers/loading.ts";
-
-const API_URL = "http://127.0.0.1:8000"
-
-interface UsersResponse {
-    users: User[];
-}
+import type { User } from "./types/user.ts";
+import { setUsers } from "./store/reducers/users.ts";
+import type { Restaurant } from "./types/restaurant.ts";
+import { setRestaurants } from "./store/reducers/restaurants.ts";
+import { setProduct } from "./store/reducers/products.ts";
+import type { Product } from "./types/produit.ts";
+import { setLoading } from "./store/reducers/loading.ts";
+import { setUserLogged } from "./store/reducers/userLogged.ts";
+import ColorModeProvider from "./theme/colormodeprovider";
+import { api } from "./services/api";
+import { restoreAuthenticatedUser } from "./services/auth";
 
 async function getUsers() {
     try {
-        const url = `${API_URL} + /users`
-        const response = await axios.get<UsersResponse>(url);
-        store.dispatch(setUsers(response.data.users))
+        const response = await api.get<User[]>("/users");
+        store.dispatch(setUsers(response.data))
         console.log("axios : appel users")
     } catch (e) {
         console.log(e);
     }
 }
 
-interface RestaurantsResponse {
-    restaurants: Restaurant[];
-}
-
 async function getRestaurants() {
     try {
-        const url = `${API_URL} + /restaurants`
-        const response = await axios.get<RestaurantsResponse>(url);
-        store.dispatch(setRestaurants(response.data.restaurants))
+        const response = await api.get<Restaurant[]>("/restaurants");
+        store.dispatch(setRestaurants(response.data))
         console.log("axios : appel restaurants")
     } catch (e) {
         console.log(e);
     }
 }
 
-interface ProductsResponse {
-    products: Product[];
-}
-
 async function getProducts() {
     try {
-        const url = `${API_URL} + /products`
-        const response = await axios.get<ProductsResponse>(url);
-        store.dispatch(setProduct(response.data.products))
+        const response = await api.get<Product[]>("/products");
+        store.dispatch(setProduct(response.data))
         console.log("axios : appel products ")
     } catch (e) {
         console.log(e);
     }
 }
 
-Promise.all([getUsers(), getRestaurants(), getProducts()]).catch((e) =>
-    console.log(e)
-).finally(() =>
-    store.dispatch(setLoading(false))
-)
-import ColorModeProvider from "./theme/colormodeprovider";
+const restoredUser = restoreAuthenticatedUser();
 
-const rootElement = document.getElementById("root");
-
-if (!rootElement) {
-    throw new Error("L'élément #root est introuvable");
+if (restoredUser) {
+    store.dispatch(setUserLogged(restoredUser));
 }
 
-createRoot(rootElement).render(
+async function bootstrap() {
+    const requests: Promise<void>[] = [getRestaurants(), getProducts()];
+
+    if (restoredUser?.role === "admin") {
+        requests.push(getUsers());
+    }
+
+    try {
+        await Promise.all(requests);
+    } finally {
+        store.dispatch(setLoading(false));
+    }
+}
+
+void bootstrap();
+
+createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
         <ColorModeProvider>
-            <RouterProvider router={route} />
+        <RouterProvider router={route} />
         </ColorModeProvider>
-    </Provider>,
-);
+    </Provider>
+)
