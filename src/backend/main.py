@@ -58,17 +58,12 @@ app = FastAPI(title="Ytasty Crousty API - Groupe 3", lifespan=lifespan, version=
               ),
               )
 
-# Origines autorisées à appeler l'API depuis un navigateur, séparées par des virgules.
-# localhost et 127.0.0.1 sont deux origines différentes pour le navigateur : on déclare les deux.
-CORS_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-]
-
-# CORS : autorise le front (autre port = autre origine) à lire les réponses de l'API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

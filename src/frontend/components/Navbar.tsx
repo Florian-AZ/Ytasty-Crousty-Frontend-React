@@ -11,8 +11,10 @@ import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import Logo from './Logo';
-import { ListItemButton } from '@mui/material';
+import { ListItemButton, MenuItem } from '@mui/material';
 import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store/store.ts';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: 'flex',
@@ -31,6 +33,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }));
 
 export default function Navbar() {
+    const user = useSelector((state: RootState) => state.userLogged.userLogged);
     const [open, setOpen] = React.useState(false);
 
     const toggleDrawer = (newOpen: boolean) => () => {
@@ -73,12 +76,21 @@ export default function Navbar() {
                             alignItems: 'center',
                         }}
                     >
-                        <Button color="primary" variant="text" size="small">
-                            Sign in
-                        </Button>
-                        <Button color="primary" variant="contained" size="small">
-                            Sign up
-                        </Button>
+                        {user ? (
+                            <Button
+                                component={Link}
+                                to="/back-office"
+                                color="secondary"
+                                variant="text"
+                                size="small"
+                            >
+                                Espace sécurisé
+                            </Button>
+                        ) : (
+                            <Button component={Link} to="/login" color="primary" variant="contained" size="small">
+                                Connexion
+                            </Button>
+                        )}
 
                     </Box>
                     <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
@@ -123,6 +135,31 @@ export default function Navbar() {
                                         Sign in
                                     </Button>
                                 </ListItemButton>
+                                <MenuItem>
+                                    {user ? (
+                                        <Button
+                                            component={Link}
+                                            to="/back-office"
+                                            color="secondary"
+                                            variant="contained"
+                                            fullWidth
+                                            onClick={toggleDrawer(false)}
+                                        >
+                                            Profil
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            component={Link}
+                                            to="/login"
+                                            color="primary"
+                                            variant="contained"
+                                            fullWidth
+                                            onClick={toggleDrawer(false)}
+                                        >
+                                            Connexion
+                                        </Button>
+                                    )}
+                                </MenuItem>
                             </Box>
                         </Drawer>
                     </Box>

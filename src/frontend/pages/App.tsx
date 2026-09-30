@@ -1,7 +1,8 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
-import { Box, Card, CardContent, Container, Icon, Stack, Typography } from "@mui/material";
+import { Box, Card, CardContent, Container, Stack, Typography } from "@mui/material";
 import CircleIcon from '@mui/icons-material/Circle';
+
 
 function App() {
     const restaurants = useSelector((state: RootState) => state.restaurants)
@@ -41,7 +42,8 @@ function App() {
                     )}  </Stack>
 
             </Container >
-        </>)
+        </>
+    )
 }
 
 export default App;
