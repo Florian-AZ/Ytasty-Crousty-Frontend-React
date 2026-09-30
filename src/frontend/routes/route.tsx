@@ -2,6 +2,7 @@ import {createBrowserRouter, Outlet} from "react-router";
 import App from "../pages/App.tsx";
 import Header from "../components/Header.tsx";
 import PrivateRoute from "./PrivateRoute.tsx";
+import ValidationOrder from "../pages/ValidationOrder.tsx";
 
 const Layout = () => {
     return (
@@ -25,6 +26,9 @@ const route = createBrowserRouter([
             {
                 path: "/",
                 element: <App/>
+            },{
+                path: "/validation",
+                element: <ValidationOrder/>
             },
             {
                 path: "/test",
