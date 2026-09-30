@@ -7,13 +7,12 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
 import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-//import ColorModeIconDropdown from '.././theme/ColorModeIconDropdown';
 import Logo from './Logo';
 import { ListItemButton } from '@mui/material';
+import { Link } from "react-router-dom";
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: 'flex',
@@ -52,7 +51,9 @@ export default function Navbar() {
             <Container maxWidth="lg">
                 <StyledToolbar variant="dense" disableGutters>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
-                        <Logo height={50} width={75} />
+
+                        <Link to={"/"}><Logo height={50} width={75} /></Link>
+
                         <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
                             <Button variant="text" color="primary" size="small">
                                 Nos Restaurants
