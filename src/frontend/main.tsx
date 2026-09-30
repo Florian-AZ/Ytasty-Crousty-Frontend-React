@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from "react-router/dom"
-import './pages/css/index.css'
+import './pages/css/app.css'
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 import route from "./routes/route.tsx";
@@ -65,9 +65,18 @@ Promise.all([getUsers(), getRestaurants(), getProducts()]).catch((e) =>
 ).finally(() =>
     store.dispatch(setLoading(false))
 )
+import ColorModeProvider from "./theme/colormodeprovider";
 
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+    throw new Error("L'élément #root est introuvable");
+}
+
+createRoot(rootElement).render(
     <Provider store={store}>
-        <RouterProvider router={route} />
-    </Provider>
-)
+        <ColorModeProvider>
+            <RouterProvider router={route} />
+        </ColorModeProvider>
+    </Provider>,
+);
