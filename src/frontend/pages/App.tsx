@@ -1,9 +1,11 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
-import { Card, CardContent, Container, Stack, Typography } from "@mui/material";
+import { Box, Card, CardContent, Container, Icon, Stack, Typography } from "@mui/material";
+import CircleIcon from '@mui/icons-material/Circle';
 
 function App() {
     const restaurants = useSelector((state: RootState) => state.restaurants)
+
     return (
         <>
             <Container sx={{
@@ -20,7 +22,17 @@ function App() {
                                 <CardContent>
                                     <Typography variant="h4" >{restaurant.name}</Typography>
                                     <Typography>Adresse : {restaurant.address} à {restaurant.city}</Typography>
-                                    <Typography>{restaurant.is_open === true ? "Ouvert" : "Fermé"}</Typography>
+                                    <Typography>
+                                        <CircleIcon
+                                            sx={{
+                                                fontSize: 10, color: restaurant.is_open ? "success.main" : "error.main"
+                                                , mr: 1,
+                                            }} />{restaurant.is_open === true
+                                                ?
+                                                "Ouvert"
+                                                :
+                                                "Fermé"
+                                        }</Typography>
                                     <Typography>Horaires d'ouverture : {restaurant.opening_hours}</Typography>
                                     <Typography>Tél : {restaurant.contact}</Typography>
                                 </CardContent>
