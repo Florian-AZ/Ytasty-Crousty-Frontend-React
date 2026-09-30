@@ -53,13 +53,13 @@ export default function Navbar() {
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
                         <Logo height={50} width={75} />
                         <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                            <Button variant="text" color="info" size="small">
+                            <Button variant="text" color="primary" size="small">
                                 Nos Restaurants
                             </Button>
-                            <Button variant="text" color="info" size="small">
+                            <Button variant="text" color="primary" size="small">
                                 Nos Plats
                             </Button>
-                            <Button variant="text" color="info" size="small">
+                            <Button variant="text" color="primary" size="small">
                                 Commander
                             </Button>
                         </Box>
