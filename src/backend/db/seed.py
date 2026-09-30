@@ -49,21 +49,21 @@ RESTAURANT = [
         "city": "Aix-en-Provence",
         "address": "12 cours Mirabeau",
         "opening_hours": "11h-23h",
-        "contact": "0442000001"
+        "contact": "04 42 00 00 01"
     },
     {
         "name": "Ytasty Crousty Lyon",
         "city": "Lyon",
         "address": "5 rue de la République",
         "opening_hours": "11h-23h",
-        "contact": "0472000002"
+        "contact": "04 72 00 00 02"
     },
     {
         "name": "Ytasty Crousty Paris",
         "city": "Paris",
         "address": "20 boulevard Saint-Michel",
         "opening_hours": "11h-00h",
-        "contact": "0140000003"
+        "contact": "01 40 00 00 03"
     }
 ]
 

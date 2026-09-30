@@ -7,12 +7,14 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
 import Divider from '@mui/material/Divider';
-import MenuItem from '@mui/material/MenuItem';
 import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
-//import ColorModeIconDropdown from '.././theme/ColorModeIconDropdown';
 import Logo from './Logo';
+import { ListItemButton, MenuItem } from '@mui/material';
+import { Link } from "react-router-dom";
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store/store.ts';
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
     display: 'flex',
@@ -31,6 +33,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 }));
 
 export default function Navbar() {
+    const user = useSelector((state: RootState) => state.userLogged.userLogged);
     const [open, setOpen] = React.useState(false);
 
     const toggleDrawer = (newOpen: boolean) => () => {
@@ -51,15 +54,17 @@ export default function Navbar() {
             <Container maxWidth="lg">
                 <StyledToolbar variant="dense" disableGutters>
                     <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center', px: 0 }}>
-                        <Logo height={50} width={75} />
+
+                        <Link to={"/"}><Logo height={50} width={75} /></Link>
+
                         <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                            <Button variant="text" color="info" size="small">
+                            <Button variant="text" color="primary" size="small">
                                 Nos Restaurants
                             </Button>
-                            <Button variant="text" color="info" size="small">
+                            <Button variant="text" color="primary" size="small">
                                 Nos Plats
                             </Button>
-                            <Button variant="text" color="info" size="small">
+                            <Button variant="text" color="primary" size="small">
                                 Commander
                             </Button>
                         </Box>
@@ -71,12 +76,21 @@ export default function Navbar() {
                             alignItems: 'center',
                         }}
                     >
-                        <Button color="primary" variant="text" size="small">
-                            Sign in
-                        </Button>
-                        <Button color="primary" variant="contained" size="small">
-                            Sign up
-                        </Button>
+                        {user ? (
+                            <Button
+                                component={Link}
+                                to="/back-office"
+                                color="secondary"
+                                variant="text"
+                                size="small"
+                            >
+                                Espace sécurisé
+                            </Button>
+                        ) : (
+                            <Button component={Link} to="/login" color="primary" variant="contained" size="small">
+                                Connexion
+                            </Button>
+                        )}
 
                     </Box>
                     <Box sx={{ display: { xs: 'flex', md: 'none' }, gap: 1 }}>
@@ -107,22 +121,44 @@ export default function Navbar() {
                                     </IconButton>
                                 </Box>
 
-                                <MenuItem>Features</MenuItem>
-                                <MenuItem>Testimonials</MenuItem>
-                                <MenuItem>Highlights</MenuItem>
-                                <MenuItem>Pricing</MenuItem>
-                                <MenuItem>FAQ</MenuItem>
-                                <MenuItem>Blog</MenuItem>
+                                <ListItemButton>Nos Restaurants</ListItemButton>
+                                <ListItemButton> Nos Plats</ListItemButton>
+                                <ListItemButton>Commander</ListItemButton>
                                 <Divider sx={{ my: 3 }} />
-                                <MenuItem>
+                                <ListItemButton>
                                     <Button color="primary" variant="contained" fullWidth>
                                         Sign up
                                     </Button>
-                                </MenuItem>
-                                <MenuItem>
+                                </ListItemButton>
+                                <ListItemButton>
                                     <Button color="primary" variant="outlined" fullWidth>
                                         Sign in
                                     </Button>
+                                </ListItemButton>
+                                <MenuItem>
+                                    {user ? (
+                                        <Button
+                                            component={Link}
+                                            to="/back-office"
+                                            color="secondary"
+                                            variant="contained"
+                                            fullWidth
+                                            onClick={toggleDrawer(false)}
+                                        >
+                                            Profil
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            component={Link}
+                                            to="/login"
+                                            color="primary"
+                                            variant="contained"
+                                            fullWidth
+                                            onClick={toggleDrawer(false)}
+                                        >
+                                            Connexion
+                                        </Button>
+                                    )}
                                 </MenuItem>
                             </Box>
                         </Drawer>

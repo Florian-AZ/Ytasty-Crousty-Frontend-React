@@ -140,6 +140,11 @@ export function AppTheme(mode: PaletteMode) {
                 background:
                   "linear-gradient(135deg, #D80808 0%, #980606 100%)",
               },
+
+              [`&.${buttonClasses.disabled}`]: {
+                color: isDark ? "#B8BAC5" : "#817B78",
+                background: isDark ? "#30313A" : "#DDD8D3",
+              },
             },
 
             // Bouton variant="contained" color="secondary"
