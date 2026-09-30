@@ -4,9 +4,18 @@ import './pages/css/index.css'
 import { Provider } from "react-redux";
 import { store } from "./store/store.ts";
 import route from "./routes/route.tsx";
+import ColorModeProvider from "./theme/colormodeprovider";
 
-createRoot(document.getElementById('root')!).render(
-    <Provider store={store}>
-        <RouterProvider router={route} />
-    </Provider>
-)
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("L'élément #root est introuvable");
+}
+
+createRoot(rootElement).render(
+  <Provider store={store}>
+    <ColorModeProvider>
+      <RouterProvider router={route} />
+    </ColorModeProvider>
+  </Provider>,
+);
