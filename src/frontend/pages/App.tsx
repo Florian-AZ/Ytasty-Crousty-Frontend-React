@@ -6,6 +6,27 @@ import CircleIcon from '@mui/icons-material/Circle';
 
 function App() {
     const restaurants = useSelector((state: RootState) => state.restaurants)
+    const aujourdhui = new Date(Date.now())
+    const heureAujourdhui = aujourdhui.getHours()
+
+    const verifHoraires = (horaires: string | null) => {
+        if (!horaires) {
+            return false
+        }
+
+        let horairesFermeture = Number(horaires.slice(-3, -1))
+        let horairesOuverture = Number(horaires.slice(0, 2))
+
+        if (horairesFermeture == 0) {
+            horairesFermeture = 24
+        }
+
+        if (heureAujourdhui < horairesFermeture && heureAujourdhui >= horairesOuverture) {
+            return true
+        } else {
+            return false
+        }
+    }
 
     return (
         <>
@@ -26,10 +47,9 @@ function App() {
                                     <Typography>
                                         <CircleIcon
                                             sx={{
-                                                fontSize: 10, color: restaurant.is_open ? "success.main" : "error.main"
+                                                fontSize: 10, color: verifHoraires(restaurant.opening_hours) ? "success.main" : "error.main"
                                                 , mr: 1,
-                                            }} />{restaurant.is_open === true
-                                                ?
+                                            }} />{verifHoraires(restaurant.opening_hours) ?
                                                 "Ouvert"
                                                 :
                                                 "Fermé"
