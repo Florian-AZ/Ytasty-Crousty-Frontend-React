@@ -1,4 +1,4 @@
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
 
 import { useColorMode } from "../theme/colormodecontext";
 
@@ -8,17 +8,13 @@ export default function ThemeToggle() {
   const isDark = mode === "dark";
 
   return (
-    <Button
+    <IconButton
       color="secondary"
-      variant="contained"
       onClick={toggleColorMode}
-      aria-label={
-        isDark
-          ? "Activer le mode clair"
-          : "Activer le mode sombre"
-      }
+      aria-label={isDark ? "Activer le mode clair" : "Activer le mode sombre"}
+      size="small"
     >
-      {isDark ? "☀️ Mode clair" : "🌙 Mode sombre"}
-    </Button>
+      {isDark ? "☀️" : "🌙"}
+    </IconButton>
   );
 }
