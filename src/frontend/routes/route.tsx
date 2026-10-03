@@ -8,6 +8,7 @@ import GuestRoute from "./GuestRoute.tsx";
 import ProtectedRoute from "./PrivateRoute.tsx";
 import BackOffice from "../pages/BackOffice.tsx";
 import CreateUser from "../pages/CreateUser.tsx";
+import Produits from "../pages/Produits.tsx";
 
 const Layout = () => {
   return (
@@ -33,6 +34,10 @@ const route = createBrowserRouter([
       {
         path: "/",
         element: <App />,
+      },
+      {
+        path: "/produits",
+        element: <Produits />,
       },
       {
         path: "/test",
