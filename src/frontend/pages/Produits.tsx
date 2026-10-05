@@ -153,7 +153,7 @@ function Produits() {
               variant="h4"
               sx={{ mb: 4, textAlign: "center", gridColumn: "1 / -1" }}
             >
-              Choisissez votre restaurant afin de voir quels prodits sont
+              Choisissez votre restaurant afin de voir quels produits sont
               disponibles !
             </Typography>
           )}
