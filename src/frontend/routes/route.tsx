@@ -9,6 +9,7 @@ import ProtectedRoute from "./PrivateRoute.tsx";
 import BackOffice from "../pages/BackOffice.tsx";
 import CreateUser from "../pages/CreateUser.tsx";
 import Produits from "../pages/Produits.tsx";
+import ValidationOrder from "../pages/ValidationOrder.tsx";
 
 const Layout = () => {
   return (
@@ -28,55 +29,54 @@ function Test() {
 }
 
 const route = createBrowserRouter([
-  {
-    element: <Layout />,
-    children: [
-      {
-        path: "/",
-        element: <App />,
-      },
-      {
-        path: "/produits",
-        element: <Produits />,
-      },
-      {
-        path: "/test",
-        element: (
-          <PrivateRoute allowedRoles={["admin"]}>
-            <Test />
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "/login",
-        element: (
-          <GuestRoute>
-            <Connexion />
-          </GuestRoute>
-        ),
-      },
-      {
-        path: "/connexion",
-        element: <Navigate to="/login" replace />,
-      },
-      {
-        path: "/back-office",
-        element: (
-          <ProtectedRoute allowedRoles={["staff", "admin", "direction"]}>
-            <BackOffice />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "/back-office/users/new",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <CreateUser />
-          </ProtectedRoute>
-        ),
-      },
-    ],
-  },
+    {
+        element: <Layout/>,
+        children: [
+            {
+                path: "/",
+                element: <App/>
+            },
+            {
+                path: "/produits",
+                element: <Produits />,
+            },{
+                path: "/validation",
+                element: <ValidationOrder/>
+            },
+            {
+                path: "/test",
+                element: <PrivateRoute allowedRoles={["admin"]}>
+                    <Test/>
+                </PrivateRoute>
+            },
+            {
+                path: "/login",
+                element: <GuestRoute>
+                    <Connexion />
+                </GuestRoute>
+            },
+            {
+                path: "/connexion",
+                element: <Navigate to="/login" replace />
+            },
+            {
+                path: "/back-office",
+                element: (
+                    <ProtectedRoute allowedRoles={["staff", "admin", "direction"]}>
+                        <BackOffice />
+                    </ProtectedRoute>
+                )
+            },
+            {
+                path: "/back-office/users/new",
+                element: (
+                    <ProtectedRoute allowedRoles={["admin"]}>
+                        <CreateUser />
+                    </ProtectedRoute>
+                )
+            },
+        ]
+    }
 ]);
 
-export default route;
+export default route
