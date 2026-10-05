@@ -10,6 +10,8 @@ import BackOffice from "../pages/BackOffice.tsx";
 import CreateUser from "../pages/CreateUser.tsx";
 import Produits from "../pages/Produits.tsx";
 import ValidationOrder from "../pages/ValidationOrder.tsx";
+import OrderSuivi from "../pages/OrderSuivi.tsx";
+import OrderRecherche from "../pages/OrderRecherche.tsx";
 
 const Layout = () => {
   return (
@@ -39,9 +41,18 @@ const route = createBrowserRouter([
             {
                 path: "/produits",
                 element: <Produits />,
-            },{
+            },
+            {
                 path: "/validation",
                 element: <ValidationOrder/>
+            },
+            {
+                path: "/order",
+                element: <OrderRecherche/>
+            },
+            {
+                path: "/order/:order_number",
+                element: <OrderSuivi/>
             },
             {
                 path: "/test",

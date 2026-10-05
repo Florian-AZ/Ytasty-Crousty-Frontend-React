@@ -73,9 +73,9 @@ export default function Navbar() {
                                         Commander
                                     </Button>
                                 </Link>
-                                <Link to={"/validation"}>
+                                <Link to={"/order"}>
                                     <Button variant="text" color="primary" size="small">
-                                        Validation
+                                        Suivi de commande
                                     </Button>
                                 </Link>
                             </Box>
