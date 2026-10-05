@@ -2,18 +2,22 @@
 // Affiche les commandes en cours d'un restaurant en 3 colonnes (à traiter, en préparation, prêtes),
 // avec des boutons pour faire avancer le statut en un clic ou annuler la commande.
 // Staff : uniquement son restaurant. Admin et direction : choix du restaurant. Direction : lecture seule.
-import {useEffect, useState} from "react";
-import {useSelector} from "react-redux";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import {
     Alert, Box, Button, Card, CardActions, CardContent, Chip, Dialog, DialogActions, DialogContent,
     DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Stack, Typography,
 } from "@mui/material";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 
-import {api} from "../services/api.ts";
-import type {Order} from "../types/order.ts";
-import type {RootState} from "../store/store.ts";
-import {messageErreur} from "../utils/erreur.ts";
+import { api } from "../services/api.ts";
+import type { Order } from "../types/order.ts";
+import type { RootState } from "../store/store.ts";
+import { messageErreur } from "../utils/erreur.ts";
+
+import SocketService from "../services/socketService.ts";
+import { ACCESS_TOKEN_KEY } from "../services/auth.ts";
+import sonCommande from "../assets/ubereats-order-sound.mp3";
 
 // Order["status"] : réutilise le type du champ status d'une commande ("pending" | "validated" | ...)
 type Statut = Order["status"];
@@ -25,18 +29,18 @@ const RAFRAICHISSEMENT_MS = 15_000;
 
 // Les 3 colonnes du tableau, et les statuts rangés dans chacune
 const COLONNES: { titre: string; statuts: Statut[] }[] = [
-    {titre: "À traiter", statuts: ["pending", "validated"]},
-    {titre: "En préparation", statuts: ["preparing"]},
-    {titre: "Prêtes", statuts: ["ready"]},
+    { titre: "À traiter", statuts: ["pending", "validated"] },
+    { titre: "En préparation", statuts: ["preparing"] },
+    { titre: "Prêtes", statuts: ["ready"] },
 ];
 
 // Bouton d'action rapide pour chaque statut : son texte et le statut suivant
 // Partial : tous les statuts n'ont pas d'action (une commande récupérée ou annulée ne bouge plus)
 const ACTION_SUIVANTE: Partial<Record<Statut, { label: string; suivant: Statut }>> = {
-    pending: {label: "Lancer la préparation", suivant: "preparing"},
-    validated: {label: "Lancer la préparation", suivant: "preparing"},
-    preparing: {label: "Marquer prête", suivant: "ready"},
-    ready: {label: "Remise au client", suivant: "collected"},
+    pending: { label: "Lancer la préparation", suivant: "preparing" },
+    validated: { label: "Lancer la préparation", suivant: "preparing" },
+    preparing: { label: "Marquer prête", suivant: "ready" },
+    ready: { label: "Remise au client", suivant: "collected" },
 };
 
 // Minutes écoulées depuis la création de la commande (jamais négatif)
@@ -90,6 +94,69 @@ function cuisine() {
         };
     }, [restaurantId]);
 
+    useEffect(() => {
+        const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+
+        if (!token || !restaurantId || !user?.username) return;
+
+        let ferme = false;
+
+        const socket = SocketService.getInstance().socket;
+        const audio = new Audio(sonCommande);
+
+        function connecterCompte() {
+            socket.emit("user_login", {
+                token,
+                restaurant_id: restaurantId,
+            });
+        }
+
+        function recevoirCommande(commande: Order) {
+            if (commande.restaurant_id !== restaurantId) return;
+
+            // execute la sonnerie à chaque commande reçue. (sans delai) pour que sa ce répéte si jamais plusieur commande arrive
+            audio.currentTime = 0;
+            void audio.play().catch((erreur) => {
+                console.warn("Lecture du son bloquée :", erreur);
+            });
+
+            // recharge les commandes avec ton API existante.
+            void api.get<Order[]>(`/restaurants/${restaurantId}/orders`)
+                .then((response) => {
+                    if (ferme) return;
+                    // met a jour les commande
+                    setOrders(response.data);
+                    setMaintenant(Date.now());
+                })
+                .catch((erreur) => {
+                    if (!ferme) setMessage(messageErreur(erreur));
+                });
+        }
+
+        function afficherErreur(message: string) {
+            if (!ferme) setMessage(message);
+        }
+
+        socket.on("connect", connecterCompte);
+        socket.on("new_order", recevoirCommande);
+        socket.on("socket_error", afficherErreur);
+
+        if (socket.connected) {
+            connecterCompte();
+        }
+
+        return () => {
+            ferme = true;
+            audio.pause();
+
+            socket.off("connect", connecterCompte);
+            socket.off("new_order", recevoirCommande);
+            socket.off("socket_error", afficherErreur);
+
+            socket.emit("logout");
+        };
+    }, [restaurantId, user?.username]);
+
     // Remplace une commande de la liste par sa nouvelle version renvoyée par l'API (changement de statut, annulation).
     // setOrders reçoit une fonction : React lui passe la liste la plus récente, même si un rechargement vient d'avoir lieu.
     // map construit une NOUVELLE liste (sans modifier l'ancienne), pour que React détecte le changement et réaffiche :
@@ -100,7 +167,7 @@ function cuisine() {
     // Bouton d'action rapide : passe la commande au statut suivant
     async function changerStatut(order: Order, statut: Statut) {
         try {
-            const response = await api.patch<Order>(`/orders/${order.order_number}/status`, {status: statut});
+            const response = await api.patch<Order>(`/orders/${order.order_number}/status`, { status: statut });
             mettreAJour(response.data);
         } catch (e) {
             setMessage(messageErreur(e));
@@ -135,11 +202,11 @@ function cuisine() {
         <Stack spacing={3}>
             {/* En-tête : titre, et restaurant (imposé pour le staff, au choix pour admin et direction) */}
             <Stack
-                direction={{xs: "column", sm: "row"}}
+                direction={{ xs: "column", sm: "row" }}
                 spacing={2}
-                sx={{justifyContent: "space-between", alignItems: {xs: "stretch", sm: "center"}}}
+                sx={{ justifyContent: "space-between", alignItems: { xs: "stretch", sm: "center" } }}
             >
-                <Typography variant="h4" component="h2" sx={{fontWeight: 700}}>
+                <Typography variant="h4" component="h2" sx={{ fontWeight: 700 }}>
                     Tableau de bord cuisine
                 </Typography>
 
@@ -149,7 +216,7 @@ function cuisine() {
                         label={restaurants.find((r) => r.id === restaurantId)?.name ?? `Restaurant #${restaurantId}`}
                     />
                 ) : (
-                    <FormControl size="small" sx={{minWidth: 240}}>
+                    <FormControl size="small" sx={{ minWidth: 240 }}>
                         <InputLabel id="cuisine-restaurant-label">Restaurant</InputLabel>
                         <Select
                             labelId="cuisine-restaurant-label"
@@ -187,18 +254,18 @@ function cuisine() {
                     return (
                         // size : une ligne de la grille compte 12 parts ; xs: 12 = un élément par ligne (colonnes empilées sur mobile),
                         // md: 4 = trois éléments par ligne à partir de 900 px (4 + 4 + 4 = 12)
-                        <Grid key={colonne.titre} size={{xs: 12, md: 4}}>
-                            <Paper variant="outlined" sx={{p: 2, height: "100%", bgcolor: "action.hover"}}>
-                                <Stack direction="row" spacing={1} sx={{alignItems: "center", mb: 2}}>
+                        <Grid key={colonne.titre} size={{ xs: 12, md: 4 }}>
+                            <Paper variant="outlined" sx={{ p: 2, height: "100%", bgcolor: "action.hover" }}>
+                                <Stack direction="row" spacing={1} sx={{ alignItems: "center", mb: 2 }}>
                                     <Typography variant="h6" component="h3">{colonne.titre}</Typography>
-                                    <Chip size="small" label={commandes.length}/>
+                                    <Chip size="small" label={commandes.length} />
                                 </Stack>
 
                                 {/* Stack : empile les cartes verticalement ; spacing={2} = 16 px entre chaque carte
                                 (unité MUI = 8 px)*/}
                                 <Stack spacing={2}>
                                     {commandes.length === 0 && (
-                                        <Typography variant="body2" sx={{color: "text.secondary"}}>
+                                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
                                             Aucune commande
                                         </Typography>
                                     )}
@@ -220,7 +287,7 @@ function cuisine() {
                                                     borderWidth: enRetard ? 2 : 1,
                                                 }}
                                             >
-                                                <CardContent sx={{pb: 1}}>
+                                                <CardContent sx={{ pb: 1 }}>
                                                     <Stack
                                                         direction="row"
                                                         sx={{
@@ -229,7 +296,7 @@ function cuisine() {
                                                             mb: 0.5
                                                         }}
                                                     >
-                                                        <Typography sx={{fontFamily: "monospace", fontWeight: 700}}>
+                                                        <Typography sx={{ fontFamily: "monospace", fontWeight: 700 }}>
                                                             {order.order_number}
                                                         </Typography>
                                                         <Chip
@@ -239,7 +306,7 @@ function cuisine() {
                                                         />
                                                     </Stack>
 
-                                                    <Typography variant="body2" sx={{color: "text.secondary", mb: 1}}>
+                                                    <Typography variant="body2" sx={{ color: "text.secondary", mb: 1 }}>
                                                         {order.customer.name} · il y a {minutes} min
                                                     </Typography>
 
@@ -247,17 +314,17 @@ function cuisine() {
                                                         <Chip
                                                             size="small"
                                                             color="error"
-                                                            icon={<WarningAmberIcon/>}
+                                                            icon={<WarningAmberIcon />}
                                                             label={`En attente depuis ${minutes} min`}
-                                                            sx={{mb: 1}}
+                                                            sx={{ mb: 1 }}
                                                         />
                                                     )}
 
                                                     {/* Ce qu'il faut préparer : quantité et nom de chaque produit */}
-                                                    <Box component="ul" sx={{m: 0, pl: 2.5}}>
+                                                    <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
                                                         {order.items.map((item) => (
                                                             <Typography component="li" variant="body2"
-                                                                        key={item.product_id}>
+                                                                key={item.product_id}>
                                                                 <strong>{item.quantity} ×</strong> {nomProduit(item.product_id)}
                                                             </Typography>
                                                         ))}
@@ -266,7 +333,7 @@ function cuisine() {
 
                                                 {/* Boutons d'action, masqués pour la direction */}
                                                 {!lectureSeule && (
-                                                    <CardActions sx={{px: 2, pb: 2, gap: 1}}>
+                                                    <CardActions sx={{ px: 2, pb: 2, gap: 1 }}>
                                                         {action && (
                                                             <Button
                                                                 variant="contained"
@@ -277,7 +344,7 @@ function cuisine() {
                                                             </Button>
                                                         )}
                                                         <Button color="error" size="small"
-                                                                onClick={() => setAAnnuler(order)}>
+                                                            onClick={() => setAAnnuler(order)}>
                                                             Annuler
                                                         </Button>
                                                     </CardActions>

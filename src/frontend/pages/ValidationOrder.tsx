@@ -9,21 +9,22 @@ import {
     Card, CardActionArea, CardContent, CardMedia, FormControl, FormLabel, Grid, InputLabel, MenuItem, Select, Stack,
     TextField, Typography
 } from "@mui/material";
-import {type SyntheticEvent, useEffect, useState} from "react";
+import { type SyntheticEvent, useEffect, useState } from "react";
 // Images importées : Vite les copie dans le build et fournit leur URL finale
 import takeawayImg from "../assets/MascoteEmporter.png";
 import onsiteImg from "../assets/MascoteSurPlace.png";
 import Container from "@mui/material/Container";
-import {api} from "../services/api";
-import type {Order} from "../types/order.ts";
+import { api } from "../services/api";
+import type { Order } from "../types/order.ts";
 import axios from "axios";
 import ProductCard from "../components/ProductCard.tsx";
-import {formatPrix} from "../utils/format.ts";
-import {isValidEmail} from "../utils/validation.ts";
+import { formatPrix } from "../utils/format.ts";
+import { isValidEmail } from "../utils/validation.ts";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import {useNavigate} from "react-router-dom";
-import {useSelector} from "react-redux";
-import type {RootState} from "../store/store.ts";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../store/store.ts";
+import SocketService from "../services/socketService.ts";
 
 function ValidationOrder() {
     // Exemple du corps attendu par POST /orders (gardé comme référence)
@@ -50,7 +51,7 @@ function ValidationOrder() {
     }
 
     // Panier de test en attendant le panier Redux : uniquement des produits d'Aix (restaurant 1)
-    const panier_test:PanierItem[] = [
+    const panier_test: PanierItem[] = [
         {
             "product_id": 1,
             "prix_unitaire": 9.9,
@@ -95,7 +96,7 @@ function ValidationOrder() {
     // Débogage : affiche l'état du formulaire dans la console à chaque modification d'un champ
     useEffect(() => {
         console.log("----------Validation order----------")
-        console.log({restaurantId, pickupMode, customerName, customerEmail, items})
+        console.log({ restaurantId, pickupMode, customerName, customerEmail, items })
         console.log("------------------------------------")
     }, [restaurantId, pickupMode, customerName, customerEmail, items]);
 
@@ -124,6 +125,11 @@ function ValidationOrder() {
             console.log("----------Orders----------")
             console.log(response.data)
             console.log("------------------------------------")
+
+            SocketService.getInstance().socket.emit(
+                "new_order",
+                response.data.order_number,
+            );
             // Commande créée : redirection vers la page de suivi, avec le numéro renvoyé par l'API
             navigate(`/order/${response.data.order_number}`)
         } catch (e) {
@@ -157,10 +163,10 @@ function ValidationOrder() {
             component="form"
             onSubmit={handleSubmit}
             noValidate
-            sx={{display: "flex", flexDirection: "column", gap: 3}}
+            sx={{ display: "flex", flexDirection: "column", gap: 3 }}
         >
             {/* Container : centre la page et limite sa largeur ; py = marge en haut et en bas */}
-            <Container maxWidth="sm" sx={{py: 4}}>
+            <Container maxWidth="sm" sx={{ py: 4 }}>
 
                 {/* Stack : empile les blocs verticalement, spacing = espace entre chaque bloc */}
                 <Stack spacing={4}>
@@ -214,15 +220,15 @@ function ValidationOrder() {
 
                     {/* Choix du mode de retrait : deux cartes cliquables */}
                     <FormControl fullWidth>
-                        <FormLabel id="pickup-mode-label" sx={{mb: 2, textAlign: "center"}}>
+                        <FormLabel id="pickup-mode-label" sx={{ mb: 2, textAlign: "center" }}>
                             Mode de retrait
                         </FormLabel>
 
                         {/* Les deux cartes côte à côte, centrées ; l'une sous l'autre sur mobile */}
                         <Stack
-                            direction={{xs: "column", sm: "row"}}
+                            direction={{ xs: "column", sm: "row" }}
                             spacing={2}
-                            sx={{justifyContent: "center", alignItems: "center"}}
+                            sx={{ justifyContent: "center", alignItems: "center" }}
                         >
                             {/* Carte "À emporter" : bordure colorée si elle est choisie */}
                             <Card
@@ -241,13 +247,13 @@ function ValidationOrder() {
                                     justifyContent: "flex-start", // collés en haut au lieu d'être centrés
                                     alignItems: "stretch",
                                 }} onClick={() => setPickupMode("takeaway")}>
-                                    <CardMedia component="img" height="140" image={takeawayImg} alt="À emporter"/>
+                                    <CardMedia component="img" height="140" image={takeawayImg} alt="À emporter" />
                                     <CardContent>
                                         <Typography gutterBottom variant="h5" component="div">
                                             À emporter
                                         </Typography>
-                                        <Typography variant="body2" sx={{color: "text.secondary"}}>
-                                            Récupérez votre commande <br/>
+                                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                                            Récupérez votre commande <br />
                                             au restaurant
                                         </Typography>
                                     </CardContent>
@@ -270,12 +276,12 @@ function ValidationOrder() {
                                     justifyContent: "flex-start", // collés en haut au lieu d'être centrés
                                     alignItems: "stretch",
                                 }} onClick={() => setPickupMode("onsite")}>
-                                    <CardMedia component="img" height="140" image={onsiteImg} alt="Sur place"/>
+                                    <CardMedia component="img" height="140" image={onsiteImg} alt="Sur place" />
                                     <CardContent>
                                         <Typography gutterBottom variant="h5" component="div">
                                             Sur place
                                         </Typography>
-                                        <Typography variant="body2" sx={{color: "text.secondary"}}>
+                                        <Typography variant="body2" sx={{ color: "text.secondary" }}>
                                             Mangez au restaurant
                                         </Typography>
                                     </CardContent>
@@ -318,7 +324,7 @@ function ValidationOrder() {
                         color="primary"
                         fullWidth
                         disabled={!restaurantId || !pickupMode || !customerName || !isValidEmail(customerEmail) || items.length <= 0 || isSubmitting}
-                        sx={{mt: 3, minHeight: 48}}
+                        sx={{ mt: 3, minHeight: 48 }}
                     >
                         {isSubmitting ? "Validation en cours..." : "Validation"}
                     </Button>
