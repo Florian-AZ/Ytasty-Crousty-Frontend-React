@@ -17,8 +17,7 @@ import { messageErreur } from "../utils/erreur.ts";
 
 import SocketService from "../services/socketService.ts";
 import { ACCESS_TOKEN_KEY } from "../services/auth.ts";
-import sonCommande from "../assets/ubereats-order-sound.mp3";
-
+import sonCommande from "../assets/mi-gente-sountec-live-edit.mp3";
 // Order["status"] : réutilise le type du champ status d'une commande ("pending" | "validated" | ...)
 type Statut = Order["status"];
 
