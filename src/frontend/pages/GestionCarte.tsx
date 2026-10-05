@@ -24,7 +24,6 @@ import type {Product} from "../types/produit";
 import type {RootState} from "../store/store";
 
 function GestionCarte() {
-    console.log("GestionCarte affichée"); // TEST : à retirer ensuite
     const navigate = useNavigate();
     const user = useSelector((state: RootState) => state.userLogged.userLogged);
     const restaurants = useSelector((state: RootState) => state.restaurants.restaurants);
