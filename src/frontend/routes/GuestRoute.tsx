@@ -12,7 +12,7 @@ const GuestRoute = ({children}: GuestRouteProps) => {
     const loggedUser = useSelector((state: RootState) => state.userLogged.userLogged)
     const loading = useSelector((state: RootState) => state.loading)
     if (loading.value) return <div>Loading...</div>
-    return loggedUser ? <Navigate to="/profile" replace/> : <>{children}</>
+    return loggedUser ? <Navigate to="/back-office" replace/> : <>{children}</>
 }
 
 export default GuestRoute
