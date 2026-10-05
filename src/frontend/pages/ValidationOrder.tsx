@@ -32,7 +32,8 @@ import { formatPrix } from "../utils/format.ts";
 import { isValidEmail } from "../utils/validation.ts";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { viderPanier } from "../store/reducers/panier";
 import type { RootState } from "../store/store.ts";
 
 function ValidationOrder() {
@@ -58,6 +59,7 @@ function ValidationOrder() {
   );
 
   const PANIER = useSelector((state: RootState) => state.panier);
+  const dispatch = useDispatch();
 
   // useNavigate : permet de changer de page depuis le code (après la création de la commande)
   let navigate = useNavigate();
@@ -127,6 +129,7 @@ function ValidationOrder() {
       console.log("----------Orders----------");
       console.log(response.data);
       console.log("------------------------------------");
+      dispatch(viderPanier());
       // Commande créée : redirection vers la page de suivi, avec le numéro renvoyé par l'API
       navigate(`/order/${response.data.order_number}`);
     } catch (e) {
