@@ -6,7 +6,7 @@ import os
 
 from pydantic import BaseModel
 
-from backend.db.seed import seed_admin, seed_restaurant, seed_produits, seed_utilisateurs
+from backend.db.seed import seed_admin, seed_restaurant, seed_produits, seed_utilisateurs, seed_commandes
 from backend.db.database import Base, engine, SessionLocal
 
 from backend.routers.auth import router as auth_router
@@ -28,6 +28,7 @@ async def lifespan(app: FastAPI):
         seed_restaurant(db)
         seed_produits(db)
         seed_utilisateurs(db)
+        seed_commandes(db)
     finally:
         db.close()
 

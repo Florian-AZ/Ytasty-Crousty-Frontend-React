@@ -1,4 +1,4 @@
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../store/store";
 import {
   Box,
@@ -9,22 +9,13 @@ import {
   IconButton,
   Typography,
 } from "@mui/material";
-import CrispyChickenBurger from "../assets/CrispyChickenBurger.png";
-import DoubleCheese from "../assets/DoubleCheeseBurger.png";
-import Tenders from "../assets/6xTenders.png";
-import Frites from "../assets/Frites.png";
-import SpicyChikenWrap from "../assets/SpicyChickenWrap.png";
-import VeganBurger from "../assets/VeganBurger.png";
-import Milkshake from "../assets/Milkshake.png";
-import CroustyBox from "../assets/CroustyBox.png";
-import BurgerTest from "../assets/BurgerTest.png";
 import { useSearchParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import {
-  viderPanier,
   ajouterPanier,
   retirerPanier,
+  viderPanier,
 } from "../store/reducers/panier";
+import ProductCard from "../components/ProductCard";
 
 function Produits() {
   const dispatch = useDispatch();
@@ -48,36 +39,6 @@ function Produits() {
       dispatch(viderPanier());
     }
     setSearchParams(`restaurant=${restaurantId}`);
-  };
-
-  const photoProduit = (nomProduit: string | null) => {
-    if (nomProduit === "Crispy Chicken Burger") {
-      return CrispyChickenBurger;
-    }
-    if (nomProduit === "Double Cheese") {
-      return DoubleCheese;
-    }
-    if (nomProduit === "Tenders x6") {
-      return Tenders;
-    }
-    if (nomProduit === "Frites maison") {
-      return Frites;
-    }
-    if (nomProduit === "Spicy Chicken Wrap") {
-      return SpicyChikenWrap;
-    }
-    if (nomProduit === "Veggie Burger") {
-      return VeganBurger;
-    }
-    if (nomProduit === "Milkshake Vanille") {
-      return Milkshake;
-    }
-    if (nomProduit === "Crousty Box") {
-      return CroustyBox;
-    }
-    if (nomProduit === "Burger Test") {
-      return BurgerTest;
-    }
   };
 
   return (
@@ -137,98 +98,12 @@ function Produits() {
               const produitDansPanier = panier.panier.find(
                 (element) => element.produit.id === produit.id,
               );
+
               return (
-                <Card>
-                  <img
-                    src={photoProduit(produit.name)}
-                    alt={produit.name}
-                    style={{
-                      width: "100%",
-                      height: "200px",
-                      objectFit: "contain",
-                    }}
-                  />
-
-                  <CardContent>
-                    <Typography variant="h6">{produit.name}</Typography>
-
-                    <Typography variant="body2" sx={{ mb: 2 }}>
-                      {produit.description}
-                    </Typography>
-
-                    <Typography>{produit.price} €</Typography>
-
-                    <Typography variant="body2">
-                      {produit.is_available ? "Disponible" : "Indisponible"}
-                    </Typography>
-                  </CardContent>
-
-                  {!produitDansPanier ? (
-                    <Button
-                      onClick={() =>
-                        dispatch(
-                          ajouterPanier({ produit: produit, quantite: 1 }),
-                        )
-                      }
-                      variant="contained"
-                      sx={{
-                        mt: 2,
-                        mb: 2,
-                        mx: "auto",
-                        display: "block",
-                      }}
-                    >
-                      Ajouter au panier
-                    </Button>
-                  ) : (
-                    <>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 2,
-                          mt: 2,
-                          mb: 2,
-                        }}
-                      >
-                        <IconButton
-                          onClick={() =>
-                            dispatch(
-                              retirerPanier({ produit: produit, quantite: -1 }),
-                            )
-                          }
-                          sx={{
-                            bgcolor: "error.main",
-                            color: "white",
-                            width: 36,
-                            height: 36,
-                          }}
-                        >
-                          -
-                        </IconButton>
-
-                        <Typography>{produitDansPanier.quantite}</Typography>
-
-                        <IconButton
-                          onClick={() =>
-                            dispatch(
-                              ajouterPanier({ produit: produit, quantite: 1 }),
-                            )
-                          }
-                          sx={{
-                            bgcolor: "success.main",
-                            color: "white",
-                            width: 36,
-                            height: 36,
-                          }}
-                        >
-                          +
-                        </IconButton>
-                      </Box>
-                    </>
-                  )}
-                </Card>
+                <ProductCard
+                  produit_id={produit.id}
+                  quantity={produitDansPanier?.quantite}
+                />
               );
             })}
         </Box>

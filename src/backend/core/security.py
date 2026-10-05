@@ -23,10 +23,12 @@ SECRET = os.environ["SECRET_KEY"]
 ALGO = "HS256"
 PRESCRIPTION = 30 #minutes
 
-def creer_jwt(username: str, role:str):
+def creer_jwt(username: str, role: str, restaurant_id: int | None):
     return jwt.encode(
         {"sub": username,
          "role": role,
+         # restaurant_id : sert au front pour filtrer le tableau de bord cuisine (null pour admin et direction)
+         "restaurant_id": restaurant_id,
          "exp": datetime.now(timezone.utc) + timedelta(minutes=PRESCRIPTION)
          }, SECRET, algorithm=ALGO)
 

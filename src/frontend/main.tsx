@@ -16,10 +16,6 @@ import ColorModeProvider from "./theme/colormodeprovider";
 import { api } from "./services/api";
 import { restoreAuthenticatedUser } from "./services/auth";
 
-interface UsersResponse {
-    users: User[];
-}
-
 async function getUsers() {
     try {
         const response = await api.get<User[]>("/users");

@@ -11,6 +11,8 @@ interface JwtPayload {
     sub?: string;
     role?: string;
     exp?: number;
+    // restaurant_id : ajouté par le back dans le token (null pour admin et direction)
+    restaurant_id?: number | null;
 }
 
 const roles: Role[] = ["admin", "staff", "direction"];
@@ -51,12 +53,9 @@ export function userFromToken(token: string): User | null {
     }
 
     return {
-        id: null,
-        first_name: null,
-        last_name: null,
         username: payload.sub,
         role: payload.role,
-        restaurant_id: null,
+        restaurant_id: typeof payload.restaurant_id === "number" ? payload.restaurant_id : null,
     };
 }
 
