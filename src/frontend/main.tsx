@@ -16,9 +16,6 @@ import ColorModeProvider from "./theme/colormodeprovider";
 import { api } from "./services/api";
 import { restoreAuthenticatedUser } from "./services/auth";
 
-
-const API_URL = "http://127.0.0.1:8000"
-
 interface UsersResponse {
     users: User[];
 }

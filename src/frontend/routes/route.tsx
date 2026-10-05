@@ -1,28 +1,31 @@
-import {createBrowserRouter, Outlet} from "react-router";
-import PrivateRoute from "./privateroute.tsx";
+import { createBrowserRouter, Outlet } from "react-router";
+import PrivateRoute from "./PrivateRoute.tsx";
 import { Navigate } from "react-router-dom";
 import App from "../pages/App.tsx";
 import Header from "../components/Header.tsx";
-import Connexion from "../pages/Connexion.tsx"
-import GuestRoute from "./guestroute.tsx";
-import ProtectedRoute from "./privateroute.tsx";
+import Connexion from "../pages/Connexion.tsx";
+import GuestRoute from "./GuestRoute.tsx";
+import ProtectedRoute from "./PrivateRoute.tsx";
 import BackOffice from "../pages/BackOffice.tsx";
 import CreateUser from "../pages/CreateUser.tsx";
+import Produits from "../pages/Produits.tsx";
 import ValidationOrder from "../pages/ValidationOrder.tsx";
 
 const Layout = () => {
-    return (
-        <>
-            <Header/>
-            <Outlet/>
-        </>
-    )
-}
+  return (
+    <>
+      <Header />
+      <Outlet />
+    </>
+  );
+};
 
 function Test() {
-    return <>
-        <p>Test</p>
-    </>;
+  return (
+    <>
+      <p>Test</p>
+    </>
+  );
 }
 
 const route = createBrowserRouter([
@@ -32,6 +35,10 @@ const route = createBrowserRouter([
             {
                 path: "/",
                 element: <App/>
+            },
+            {
+                path: "/produits",
+                element: <Produits />,
             },{
                 path: "/validation",
                 element: <ValidationOrder/>

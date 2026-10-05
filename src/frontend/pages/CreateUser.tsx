@@ -7,6 +7,7 @@ import { validatePassword, validateUsername } from "../services/auth";
 import type { RootState } from "../store/store";
 import type { Role, User } from "../types/user";
 
+
 interface FormState {
     first_name: string;
     last_name: string;
@@ -166,7 +167,7 @@ export default function CreateUser() {
                                         </MenuItem>
 
                                         {restaurants.map((restaurant) => (
-                                            <MenuItem key={restaurant.id} value={restaurant.id}>
+                                            <MenuItem key={restaurant.id ?? restaurant.name} value={restaurant.id ?? ""}>
                                                 {restaurant.name} — {restaurant.city}
                                             </MenuItem>
                                         ))}
