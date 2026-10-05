@@ -41,8 +41,8 @@ présentée dans la section [API](#api).
 Le front s'appuie sur une **API REST** développée avec **FastAPI** (Python), dans un dépôt séparé :
 **[github.com/Emrick-R/ytastycrousty-g3-py](https://github.com/Emrick-R/ytastycrousty-g3-py)**
 
-- **Données** : PostgreSQL, via l'ORM SQLAlchemy ; les 3 restaurants, la carte et le compte administrateur sont créés
-  automatiquement au premier démarrage.
+- **Données** : PostgreSQL, via l'ORM SQLAlchemy ; les 3 restaurants, la carte, les comptes de démonstration et des
+  commandes d'exemple sont créés automatiquement au premier démarrage.
 - **Authentification** : JWT (`POST /auth/login`), mots de passe hachés avec bcrypt.
 - **Autorisations** : contrôle par rôle (`admin`, `staff`, `direction`) et par restaurant : un `staff` n'agit que sur
   son propre restaurant.
@@ -57,13 +57,15 @@ Le front s'appuie sur une **API REST** développée avec **FastAPI** (Python), d
 
 L'API a été légèrement modifiée par rapport à la version initiale du dépôt, sans changer le contrat :
 
-- **`restaurant_id` ajouté dans le JWT** : le front sait directement à quel restaurant appartient un compte `staff` (
-  filtrage du tableau de bord cuisine et de la gestion de la carte), sans appeler `GET /users`, réservé à l'admin. Il
-  vaut `null` pour `admin` et `direction`.
+- **`restaurant_id` ajouté dans le JWT** : le front sait directement à quel restaurant appartient un compte `staff`
+  (filtrage du tableau de bord cuisine et de la gestion de la carte), sans appeler `GET /users`, réservé à l'admin.
+  Il vaut `null` pour `admin` et `direction`.
 - **CORS** : autorisation de l'origine du front (`http://localhost:5173`), sans laquelle le navigateur bloque les
   appels.
-- **Images des produits** : les chemins enregistrés en base pointent vers le dossier `public/images/` du front (
-  `/images/...`).
+- **Images des produits** : les chemins enregistrés en base pointent vers le dossier `public/images/` du front
+  (`/images/...`).
+- **Données de démo** : comptes `staff` et `direction`, et commandes d'exemple dans chaque restaurant (tous les
+  statuts), pour tester le tableau de bord cuisine et le suivi sans tout saisir à la main.
 
 ### Endpoints utilisés par le front
 
@@ -129,8 +131,16 @@ L'adresse de l'API est définie une seule fois dans `src/frontend/services/api.t
 | `admin`                | Tout le back-office, tous les restaurants : création de comptes, CRUD des produits |
 | `direction`            | Tableau de bord cuisine de tous les restaurants, **en lecture seule**              |
 
-Compte administrateur créé au démarrage de l'API : `admin123` / `Admin@123456`.
-Les comptes `staff` et `direction` se créent depuis le back-office (« Créer un utilisateur »).
+Comptes créés automatiquement au démarrage de l'API :
+
+| Identifiant  | Mot de passe       | Rôle        | Restaurant |
+|--------------|--------------------|-------------|------------|
+| `admin123`   | `Admin@123456`     | `admin`     | tous       |
+| `staffaix1`  | `Staff@123456`     | `staff`     | Aix        |
+| `stafflyon1` | `Staff@123456`     | `staff`     | Lyon       |
+| `direction1` | `Direction@123456` | `direction` | tous       |
+
+D'autres comptes peuvent être créés depuis le back-office (« Créer un utilisateur »).
 
 ---
 
@@ -138,8 +148,8 @@ Les comptes `staff` et `direction` se créent depuis le back-office (« Créer u
 
 ### Parcours client
 
-- **Carte** : produits du restaurant avec photo, prix, catégorie et disponibilité ; squelettes de chargement (
-  `Skeleton`).
+- **Carte** : produits du restaurant avec photo, prix, catégorie et disponibilité ; squelettes de chargement
+  (`Skeleton`).
 - **Panier** : ajout et retrait des produits, total calculé.
 - **Validation de commande** : nom et e-mail validés, choix du restaurant et du mode de retrait (sur place ou à
   emporter), envoi à l'API sans compte client.
@@ -152,10 +162,10 @@ Les comptes `staff` et `direction` se créent depuis le back-office (« Créer u
   statut en un clic, annulation avec confirmation, alerte rouge sur les commandes en attente depuis plus de 10 minutes,
   liste mise à jour automatiquement.
 - **Gestion de la carte** (`/back-office/carte`) :
-    - `staff` : switch de disponibilité pour signaler une rupture ;
-    - `admin` : création, modification (prix, ingrédients, image...) et suppression des produits, dans tous les
-      restaurants. Un produit déjà commandé ne peut pas être supprimé (l'API le refuse pour conserver l'historique) : il
-      faut le passer en rupture.
+  - `staff` : switch de disponibilité pour signaler une rupture ;
+  - `admin` : création, modification (prix, ingrédients, image...) et suppression des produits, dans tous les
+    restaurants. Un produit déjà commandé ne peut pas être supprimé (l'API le refuse pour conserver l'historique) : il
+    faut le passer en rupture.
 - **Création de comptes** (`admin`) : rôle et restaurant de rattachement.
 
 ---
