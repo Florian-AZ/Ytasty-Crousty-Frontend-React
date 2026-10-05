@@ -41,7 +41,7 @@ def login(item: UserLogin, db: Session = Depends(get_db)):
     # 401 générique : on ne dit pas si c'est le user ou le mot de passe qui est faux
     if not user or not verif_hash(item.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Identifiants Invalides")
-    token = creer_jwt(user.username, user.role)
+    token = creer_jwt(user.username, user.role, user.restaurant_id)
     return {"access_token": token, "token_type": "bearer"}
 
 

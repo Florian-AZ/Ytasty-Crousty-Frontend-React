@@ -56,7 +56,7 @@ export function userFromToken(token: string): User | null {
         last_name: null,
         username: payload.sub,
         role: payload.role,
-        restaurant_id: null,
+        restaurant_id: typeof payload.restaurant_id === "number" ? payload.restaurant_id : null,
     };
 }
 

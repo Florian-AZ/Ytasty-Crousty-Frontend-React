@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "../store/store";
 import { clearUserLogged } from "../store/reducers/userLogged";
 import { clearStoredToken } from "../services/auth";
+import Cuisine from "../components/Cuisine.tsx";
 
 export default function BackOffice() {
     const user = useSelector((state: RootState) => state.userLogged.userLogged);
@@ -22,7 +23,8 @@ export default function BackOffice() {
             component="main"
             sx={{ minHeight: "100vh", bgcolor: "background.default", pt: 16, pb: 6 }}
         >
-            <Container maxWidth="md">
+            {/* lg : assez large pour les 3 colonnes du tableau cuisine*/}
+            <Container maxWidth="lg" sx={{ py: 4 }}>
                 <Card>
                     <CardContent sx={{ p: { xs: 3, sm: 5 } }}>
                         <Stack spacing={3}>
@@ -54,6 +56,9 @@ export default function BackOffice() {
                                     Se déconnecter
                                 </Button>
                             </Stack>
+
+                            {/* Tableau de bord cuisine : staff (son restaurant), admin et direction (tous les restaurants) */}
+                            <Cuisine />
                         </Stack>
                     </CardContent>
                 </Card>

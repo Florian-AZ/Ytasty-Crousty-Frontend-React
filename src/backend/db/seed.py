@@ -22,7 +22,7 @@ UTILISATEURS_DEMO = [
      "restaurant_id": 1},
     {"first_name": "Lea", "last_name": "Staff", "username": "stafflyon1", "password": "Staff@123456", "role": "staff",
      "restaurant_id": 2},
-    {"first_name": "Dan", "last_name": "Direction", "username": "direction1", "password": "Direction@12345",
+    {"first_name": "Dan", "last_name": "Direction", "username": "direction1", "password": "Direction@123456",
      "role": "direction", "restaurant_id": None},
 ]
 
