@@ -62,15 +62,16 @@ export default function Navbar() {
             </Link>
 
             <Box sx={{ display: { xs: "none", md: "flex" } }}>
-              <Button variant="text" color="primary" size="small">
-                Nos Restaurants
-              </Button>
-              <Button variant="text" color="primary" size="small">
-                Nos Plats
-              </Button>
-              <Button variant="text" color="primary" size="small">
-                Commander
-              </Button>
+              <Link to={"/produits"}>
+                <Button variant="text" color="primary" size="small">
+                  Nos Plats
+                </Button>
+              </Link>
+              <Link to={"/produits"}>
+                <Button variant="text" color="primary" size="small">
+                  Commander
+                </Button>
+              </Link>
             </Box>
           </Box>
           <Box
