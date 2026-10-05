@@ -12,7 +12,8 @@ import Produits from "../pages/Produits.tsx";
 import ValidationOrder from "../pages/ValidationOrder.tsx";
 import OrderSuivi from "../pages/OrderSuivi.tsx";
 import OrderRecherche from "../pages/OrderRecherche.tsx";
-import Erreur from "../pages/erreur.tsx";
+import Erreur from "../pages/Erreur.tsx";
+import GestionCarte from "../pages/GestionCarte.tsx";
 
 const Layout = () => {
     return (
@@ -32,8 +33,8 @@ function Test() {
 }
 
 const route = createBrowserRouter([
-    {
-        element: <Layout />,
+{
+    element: <Layout />,
         children: [
             {
                 path: "/",
@@ -80,12 +81,21 @@ const route = createBrowserRouter([
                 )
             },
             {
-                path: "/back-office/users/new",
+                path: "/back-office/carte",
                 element: (
-                    <ProtectedRoute allowedRoles={["admin"]}>
-                        <CreateUser />
+                    <ProtectedRoute allowedRoles={["admin", "staff"]}>
+                        <GestionCarte />
                     </ProtectedRoute>
                 )
+            },
+            {
+                path: "/back-office/users/new",
+                element:
+                    (
+                        <ProtectedRoute allowedRoles={["admin"]}>
+                            <CreateUser />
+                        </ProtectedRoute>
+                    )
             },
             {
                 path: "/erreur/:code",
@@ -96,7 +106,8 @@ const route = createBrowserRouter([
                 element: <Navigate to="/erreur/404" replace />,
             },
         ]
-    }
-]);
+}
+    ])
+;
 
 export default route

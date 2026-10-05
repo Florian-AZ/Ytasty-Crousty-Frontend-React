@@ -8,50 +8,11 @@ import {
   Container,
   Typography,
 } from "@mui/material";
-import CrispyChickenBurger from "../assets/CrispyChickenBurger.png";
-import DoubleCheese from "../assets/DoubleCheeseBurger.png";
-import Tenders from "../assets/6xTenders.png";
-import Frites from "../assets/Frites.png";
-import SpicyChikenWrap from "../assets/SpicyChickenWrap.png";
-import VeganBurger from "../assets/VeganBurger.png";
-import Milkshake from "../assets/Milkshake.png";
-import CroustyBox from "../assets/CroustyBox.png";
-import BurgerTest from "../assets/BurgerTest.png";
 
 function Produits() {
   function ajouterPanier() {}
 
   const produits = useSelector((state: RootState) => state.products);
-
-  const photoProduit = (nomProduit: string | null) => {
-    if (nomProduit === "Crispy Chicken Burger") {
-      return CrispyChickenBurger;
-    }
-    if (nomProduit === "Double Cheese") {
-      return DoubleCheese;
-    }
-    if (nomProduit === "Tenders x6") {
-      return Tenders;
-    }
-    if (nomProduit === "Frites maison") {
-      return Frites;
-    }
-    if (nomProduit === "Spicy Chicken Wrap") {
-      return SpicyChikenWrap;
-    }
-    if (nomProduit === "Veggie Burger") {
-      return VeganBurger;
-    }
-    if (nomProduit === "Milkshake Vanille") {
-      return Milkshake;
-    }
-    if (nomProduit === "Crousty Box") {
-      return CroustyBox;
-    }
-    if (nomProduit === "Burger Test") {
-      return BurgerTest;
-    }
-  };
 
   return (
     <>
@@ -76,7 +37,7 @@ function Produits() {
           {produits.products.map((produit) => (
             <Card key={produit.id}>
               <img
-                src={photoProduit(produit.name)}
+                src={produit.image}
                 alt={produit.name}
                 style={{
                   width: "100%",
