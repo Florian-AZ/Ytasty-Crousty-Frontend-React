@@ -1,6 +1,7 @@
 import { Box, Button, Card, CardContent, Chip, Container, Stack, Typography } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
+import RestaurantMenuIcon from "@mui/icons-material/RestaurantMenu";
 
 import type { AppDispatch, RootState } from "../store/store";
 import { clearUserLogged } from "../store/reducers/userLogged";
@@ -49,6 +50,18 @@ export default function BackOffice() {
                                         variant="contained"
                                     >
                                         Créer un utilisateur
+                                    </Button>
+                                )}
+
+                                {/* Lien vers la gestion de la carte : la direction ne le voit pas (elle n'y a pas accès) */}
+                                {(user?.role === "admin" || user?.role === "staff") && (
+                                    <Button
+                                        component={Link}
+                                        to="/back-office/carte"
+                                        variant="outlined"
+                                        startIcon={<RestaurantMenuIcon />}
+                                    >
+                                        Gérer la carte
                                     </Button>
                                 )}
 
