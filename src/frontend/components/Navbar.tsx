@@ -11,11 +11,12 @@ import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import Logo from "./Logo";
-import { ListItemButton, MenuItem } from "@mui/material";
+import { Badge, colors, Icon, ListItemButton, MenuItem } from "@mui/material";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store.ts";
 import ThemeToggle from "../theme/changementtheme.tsx";
+import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: "flex",
@@ -35,7 +36,13 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
 
 export default function Navbar() {
   const user = useSelector((state: RootState) => state.userLogged.userLogged);
+  const panier = useSelector((state: RootState) => state.panier);
   const [open, setOpen] = React.useState(false);
+  let nbArticles = 0;
+
+  for (const produit of panier.panier) {
+    nbArticles = nbArticles + produit.quantite;
+  }
 
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
@@ -82,6 +89,21 @@ export default function Navbar() {
             }}
           >
             <ThemeToggle />
+            <IconButton color="primary">
+              <Badge
+                badgeContent={nbArticles}
+                color="secondary"
+                sx={{
+                  "& .MuiBadge-badge": {
+                    fontSize: 10,
+                    minWidth: 15,
+                    height: 15,
+                  },
+                }}
+              >
+                <ShoppingCartRoundedIcon sx={{ fontSize: 26 }} />
+              </Badge>
+            </IconButton>
             {user ? (
               <Button
                 component={Link}
@@ -131,9 +153,7 @@ export default function Navbar() {
                     <CloseRoundedIcon />
                   </IconButton>
                 </Box>
-
-                <ListItemButton>Nos Restaurants</ListItemButton>
-                <ListItemButton> Nos Plats</ListItemButton>
+                <ListItemButton>Nos Plats</ListItemButton>
                 <ListItemButton>Commander</ListItemButton>
                 <Divider sx={{ my: 3 }} />
                 <ListItemButton>
