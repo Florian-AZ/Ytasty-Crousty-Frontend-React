@@ -14,100 +14,106 @@ import OrderSuivi from "../pages/OrderSuivi.tsx";
 import OrderRecherche from "../pages/OrderRecherche.tsx";
 import Erreur from "../pages/Erreur.tsx";
 import GestionCarte from "../pages/GestionCarte.tsx";
+import ProductDetail from "../pages/DetailProduit.tsx";
 
 const Layout = () => {
-    return (
-        <>
-            <Header />
-            <Outlet />
-        </>
-    );
+  return (
+    <>
+      <Header />
+      <Outlet />
+    </>
+  );
 };
 
 function Test() {
-    return (
-        <>
-            <p>Test</p>
-        </>
-    );
+  return (
+    <>
+      <p>Test</p>
+    </>
+  );
 }
 
 const route = createBrowserRouter([
-{
+  {
     element: <Layout />,
-        children: [
-            {
-                path: "/",
-                element: <App />
-            },
-            {
-                path: "/produits",
-                element: <Produits />,
-            },
-            {
-                path: "/validation",
-                element: <ValidationOrder />
-            },
-            {
-                path: "/order",
-                element: <OrderRecherche />
-            },
-            {
-                path: "/order/:order_number",
-                element: <OrderSuivi />
-            },
-            {
-                path: "/test",
-                element: <PrivateRoute allowedRoles={["admin"]}>
-                    <Test />
-                </PrivateRoute>
-            },
-            {
-                path: "/login",
-                element: <GuestRoute>
-                    <Connexion />
-                </GuestRoute>
-            },
-            {
-                path: "/connexion",
-                element: <Navigate to="/login" replace />
-            },
-            {
-                path: "/back-office",
-                element: (
-                    <ProtectedRoute allowedRoles={["staff", "admin", "direction"]}>
-                        <BackOffice />
-                    </ProtectedRoute>
-                )
-            },
-            {
-                path: "/back-office/carte",
-                element: (
-                    <ProtectedRoute allowedRoles={["admin", "staff"]}>
-                        <GestionCarte />
-                    </ProtectedRoute>
-                )
-            },
-            {
-                path: "/back-office/users/new",
-                element:
-                    (
-                        <ProtectedRoute allowedRoles={["admin"]}>
-                            <CreateUser />
-                        </ProtectedRoute>
-                    )
-            },
-            {
-                path: "/erreur/:code",
-                element: <Erreur />,
-            },
-            {
-                path: "*",
-                element: <Navigate to="/erreur/404" replace />,
-            },
-        ]
-}
-    ])
-;
-
-export default route
+    children: [
+      {
+        path: "/",
+        element: <App />,
+      },
+      {
+        path: "/produits",
+        element: <Produits />,
+      },
+      {
+        path: "/validation",
+        element: <ValidationOrder />,
+      },
+      {
+        path: "/order",
+        element: <OrderRecherche />,
+      },
+      {
+        path: "/order/:order_number",
+        element: <OrderSuivi />,
+      },
+      {
+        path: "/test",
+        element: (
+          <PrivateRoute allowedRoles={["admin"]}>
+            <Test />
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "/login",
+        element: (
+          <GuestRoute>
+            <Connexion />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "/produit/:id",
+        element: <ProductDetail />,
+      },
+      {
+        path: "/connexion",
+        element: <Navigate to="/login" replace />,
+      },
+      {
+        path: "/back-office",
+        element: (
+          <ProtectedRoute allowedRoles={["staff", "admin", "direction"]}>
+            <BackOffice />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/back-office/carte",
+        element: (
+          <ProtectedRoute allowedRoles={["admin", "staff"]}>
+            <GestionCarte />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/back-office/users/new",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <CreateUser />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "/erreur/:code",
+        element: <Erreur />,
+      },
+      {
+        path: "*",
+        element: <Navigate to="/erreur/404" replace />,
+      },
+    ],
+  },
+]);
+export default route;

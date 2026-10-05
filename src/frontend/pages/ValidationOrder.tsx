@@ -15,9 +15,6 @@ import {
   FormControl,
   FormLabel,
   Grid,
-  InputLabel,
-  MenuItem,
-  Select,
   Stack,
   TextField,
   Typography,
@@ -54,32 +51,6 @@ function ValidationOrder() {
             "email": ",2p;^K1ySBsA:dtFN.qE3cFV8{,t5TOhcQZ]#B*Tnx1=/5{Nd;Q>VQ'@BR3.1M}}{xX1rqc{(7T~!%ZBUwtZ$y=)#:UpX5bd)989=4TI1[c2&fpIz"
     }
     }*/
-
-  // Une ligne du panier : l'id du produit, son prix (pour le total indicatif) et sa quantité
-  interface PanierItem {
-    product_id: number;
-    prix_unitaire: number;
-    quantity: number;
-  }
-
-  // Panier de test en attendant le panier Redux : uniquement des produits d'Aix (restaurant 1)
-  const panier_test: PanierItem[] = [
-    {
-      product_id: 1,
-      prix_unitaire: 9.9,
-      quantity: 1,
-    },
-    {
-      product_id: 2,
-      prix_unitaire: 8.9,
-      quantity: 1,
-    },
-    {
-      product_id: 3,
-      prix_unitaire: 10.5,
-      quantity: 1,
-    },
-  ];
 
   // Restaurants chargés depuis l'API (GET /restaurants), lus dans le store Redux
   const RESTAU = useSelector(
@@ -186,6 +157,16 @@ function ValidationOrder() {
     }
   }
 
+  console.log({
+    RESTAUID,
+    pickupMode,
+    customerName,
+    customerEmail,
+    emailValide: isValidEmail(customerEmail),
+    nbItems: items.length,
+    isSubmitting,
+  });
+
   return (
     // Box component="form" : toute la page est un formulaire, onSubmit appelle handleSubmit
     // noValidate : désactive les bulles d'erreur du navigateur, la validation est faite par le code
@@ -239,7 +220,68 @@ function ValidationOrder() {
           <Typography variant="h6" align="right">
             Total : {formatPrix(total)}
           </Typography>
-          {/* Coordonnées du client : champs contrôlés (value + onChange) */}
+
+          <FormControl>
+            <FormLabel>Mode de retrait</FormLabel>
+
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    borderColor:
+                      pickupMode === "onsite" ? "primary.main" : "divider",
+                  }}
+                >
+                  <CardActionArea onClick={() => setPickupMode("onsite")}>
+                    <CardMedia
+                      component="img"
+                      image={onsiteImg}
+                      alt="Sur place"
+                      sx={{
+                        height: 150,
+                        objectFit: "contain",
+                      }}
+                    />
+
+                    <CardContent>
+                      <Typography align="center" variant="h6">
+                        Sur place
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+
+              <Grid size={{ xs: 12, sm: 6 }}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    borderColor:
+                      pickupMode === "takeaway" ? "primary.main" : "divider",
+                  }}
+                >
+                  <CardActionArea onClick={() => setPickupMode("takeaway")}>
+                    <CardMedia
+                      component="img"
+                      image={takeawayImg}
+                      alt="À emporter"
+                      sx={{
+                        height: 150,
+                        objectFit: "contain",
+                      }}
+                    />
+
+                    <CardContent>
+                      <Typography align="center" variant="h6">
+                        À emporter
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              </Grid>
+            </Grid>
+          </FormControl>
           <Stack spacing={2}>
             <TextField
               required

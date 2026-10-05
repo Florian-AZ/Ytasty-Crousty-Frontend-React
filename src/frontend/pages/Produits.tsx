@@ -3,20 +3,13 @@ import type { RootState } from "../store/store";
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Container,
-  IconButton,
   Switch,
   TextField,
   Typography,
 } from "@mui/material";
 import { useSearchParams } from "react-router-dom";
-import {
-  ajouterPanier,
-  retirerPanier,
-  viderPanier,
-} from "../store/reducers/panier";
+import { viderPanier } from "../store/reducers/panier";
 import ProductCard from "../components/ProductCard";
 
 function Produits() {

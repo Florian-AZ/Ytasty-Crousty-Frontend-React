@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../store/store.ts";
 import { formatPrix } from "../utils/format.ts";
 import { ajouterPanier, retirerPanier } from "../store/reducers/panier";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   produit_id: number;
@@ -35,15 +36,18 @@ function ProductCard({ produit_id, page, quantity }: ProductCardProps) {
   }
   return (
     <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      <img
-        src={produit.image}
-        alt={produit.name}
-        style={{
-          width: "100%",
-          height: "200px",
-          objectFit: "contain",
-        }}
-      />
+      <Link to={`/produit/${produit.id}`}>
+        <img
+          src={produit.image}
+          alt={produit.name}
+          style={{
+            width: "100%",
+            height: "200px",
+            objectFit: "contain",
+            cursor: "pointer",
+          }}
+        />
+      </Link>
 
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography variant="h6">{produit.name}</Typography>
@@ -51,60 +55,65 @@ function ProductCard({ produit_id, page, quantity }: ProductCardProps) {
           {produit.description}
         </Typography>
         <Typography>{formatPrix(produit.price)}</Typography>
-        {quantity !== undefined && (
-          <>
-            <Box
+        {quantity !== undefined && page === "order" && (
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            Quantité : {quantity}
+          </Typography>
+        )}
+
+        {quantity !== undefined && page !== "order" && (
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 2,
+              mt: 2,
+            }}
+          >
+            <IconButton
+              onClick={() =>
+                dispatch(
+                  retirerPanier({
+                    produit: produit,
+                    quantite: 1,
+                  }),
+                )
+              }
               sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
-                mt: 2,
+                bgcolor: "error.main",
+                color: "white",
+                width: 36,
+                height: 36,
               }}
             >
-              <IconButton
-                onClick={() =>
-                  dispatch(
-                    retirerPanier({
-                      produit: produit,
-                      quantite: 1,
-                    }),
-                  )
-                }
-                sx={{
-                  bgcolor: "error.main",
-                  color: "white",
-                  width: 36,
-                  height: 36,
-                }}
-              >
-                -
-              </IconButton>
+              -
+            </IconButton>
 
-              <Typography>{quantity}</Typography>
+            <Typography>{quantity}</Typography>
 
-              <IconButton
-                onClick={() =>
-                  dispatch(
-                    ajouterPanier({
-                      produit: produit,
-                      quantite: 1,
-                    }),
-                  )
-                }
-                sx={{
-                  bgcolor: "success.main",
-                  color: "white",
-                  width: 36,
-                  height: 36,
-                }}
-                disabled={!produit.is_available || !restaurant?.is_open}
-              >
-                +
-              </IconButton>
-            </Box>
-          </>
+            <IconButton
+              onClick={() =>
+                dispatch(
+                  ajouterPanier({
+                    produit: produit,
+                    quantite: 1,
+                  }),
+                )
+              }
+              sx={{
+                bgcolor: "success.main",
+                color: "white",
+                width: 36,
+                height: 36,
+              }}
+              disabled={!produit.is_available || !restaurant?.is_open}
+            >
+              +
+            </IconButton>
+          </Box>
         )}
+
         <Typography variant="body2" sx={{ mt: 2 }}>
           {produit.is_available ? "Disponible" : "Indisponible"}
         </Typography>

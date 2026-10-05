@@ -11,9 +11,10 @@ import Drawer from "@mui/material/Drawer";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import Logo from "./Logo";
-import { Badge, colors, Icon, ListItemButton } from "@mui/material";
+import { Badge, ListItemButton } from "@mui/material";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { ajouterPanier, retirerPanier } from "../store/reducers/panier";
 import type { RootState } from "../store/store.ts";
 import ThemeToggle from "../theme/changementtheme.tsx";
 import ShoppingCartRoundedIcon from "@mui/icons-material/ShoppingCartRounded";
@@ -38,10 +39,20 @@ export default function Navbar() {
   const user = useSelector((state: RootState) => state.userLogged.userLogged);
   const panier = useSelector((state: RootState) => state.panier);
   const [open, setOpen] = React.useState(false);
+  const [panierOpen, setPanierOpen] = React.useState(false);
+  const dispatch = useDispatch();
   let nbArticles = 0;
+  let total = 0;
+  const restaurants = useSelector(
+    (state: RootState) => state.restaurants.restaurants,
+  );
 
   for (const produit of panier.panier) {
     nbArticles = nbArticles + produit.quantite;
+  }
+
+  for (const produit of panier.panier) {
+    total = total + produit.produit.price * produit.quantite;
   }
 
   const toggleDrawer = (newOpen: boolean) => () => {
@@ -95,7 +106,7 @@ export default function Navbar() {
               }}
             >
               <ThemeToggle />
-              <IconButton color="primary">
+              <IconButton color="primary" onClick={() => setPanierOpen(true)}>
                 <Badge
                   badgeContent={nbArticles}
                   color="warning"
@@ -205,6 +216,81 @@ export default function Navbar() {
           </StyledToolbar>
         </Container>
       </AppBar>
+      <Drawer
+        anchor="right"
+        open={panierOpen}
+        onClose={() => setPanierOpen(false)}
+      >
+        <Box sx={{ width: 350, p: 3 }}>
+          <h2>Panier</h2>
+
+          {panier.panier.map((articlePanier) => {
+            const restaurantProduit = restaurants.find(
+              (restaurant) =>
+                restaurant.id === articlePanier.produit.restaurant_id,
+            );
+
+            return (
+              <Box key={articlePanier.produit.id}>
+                {articlePanier.produit.name} — {articlePanier.quantite}{" "}
+                <IconButton
+                  onClick={() =>
+                    dispatch(
+                      retirerPanier({
+                        produit: articlePanier.produit,
+                        quantite: 1,
+                      }),
+                    )
+                  }
+                  sx={{
+                    bgcolor: "error.main",
+                    color: "white",
+                    width: 36,
+                    height: 36,
+                  }}
+                >
+                  -
+                </IconButton>
+                <IconButton
+                  onClick={() =>
+                    dispatch(
+                      ajouterPanier({
+                        produit: articlePanier.produit,
+                        quantite: 1,
+                      }),
+                    )
+                  }
+                  sx={{
+                    bgcolor: "success.main",
+                    color: "white",
+                    width: 36,
+                    height: 36,
+                  }}
+                  disabled={
+                    !articlePanier.produit.is_available ||
+                    !restaurantProduit?.is_open
+                  }
+                >
+                  +
+                </IconButton>
+              </Box>
+            );
+          })}
+          <Divider sx={{ my: 2 }} />
+
+          <Box>Total : {total} €</Box>
+          <Button
+            component={Link}
+            to="/Validation"
+            variant="contained"
+            fullWidth
+            sx={{ mt: 2 }}
+            onClick={() => setPanierOpen(false)}
+          >
+            Valider la commande
+          </Button>
+        </Box>
+      </Drawer>
       <Box sx={{ height: 112 }} />
     </>
   );
