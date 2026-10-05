@@ -12,31 +12,32 @@ import Produits from "../pages/Produits.tsx";
 import ValidationOrder from "../pages/ValidationOrder.tsx";
 import OrderSuivi from "../pages/OrderSuivi.tsx";
 import OrderRecherche from "../pages/OrderRecherche.tsx";
+import Erreur from "../pages/erreur.tsx";
 
 const Layout = () => {
-  return (
-    <>
-      <Header />
-      <Outlet />
-    </>
-  );
+    return (
+        <>
+            <Header />
+            <Outlet />
+        </>
+    );
 };
 
 function Test() {
-  return (
-    <>
-      <p>Test</p>
-    </>
-  );
+    return (
+        <>
+            <p>Test</p>
+        </>
+    );
 }
 
 const route = createBrowserRouter([
     {
-        element: <Layout/>,
+        element: <Layout />,
         children: [
             {
                 path: "/",
-                element: <App/>
+                element: <App />
             },
             {
                 path: "/produits",
@@ -44,20 +45,20 @@ const route = createBrowserRouter([
             },
             {
                 path: "/validation",
-                element: <ValidationOrder/>
+                element: <ValidationOrder />
             },
             {
                 path: "/order",
-                element: <OrderRecherche/>
+                element: <OrderRecherche />
             },
             {
                 path: "/order/:order_number",
-                element: <OrderSuivi/>
+                element: <OrderSuivi />
             },
             {
                 path: "/test",
                 element: <PrivateRoute allowedRoles={["admin"]}>
-                    <Test/>
+                    <Test />
                 </PrivateRoute>
             },
             {
@@ -85,6 +86,14 @@ const route = createBrowserRouter([
                         <CreateUser />
                     </ProtectedRoute>
                 )
+            },
+            {
+                path: "/erreur/:code",
+                element: <Erreur />,
+            },
+            {
+                path: "*",
+                element: <Navigate to="/erreur/404" replace />,
             },
         ]
     }
