@@ -125,7 +125,6 @@ function GestionCarte() {
         <>
             <Container maxWidth="lg" sx={{py: 4}}>
                 <Stack spacing={3}>
-                    {/* "/backoffice" : à adapter si ta route du back office a un autre chemin */}
                     <Box>
                         <Button startIcon={<ArrowBackIcon/>} onClick={() => navigate("/back-office")}>
                             Retour au back office

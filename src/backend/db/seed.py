@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal
 
 from backend.core import hashing_mdp
-from backend.models import User, Restaurant, Produit
+from backend.models import User, Restaurant, Produit, Order, OrderItem, Status
 
 
 def seed_admin(db: Session):
@@ -115,4 +117,90 @@ def seed_produits(db: Session):
         ).first()
         if not existant:
             db.add(Produit(**fiche))
+    db.commit()
+
+
+# + Order, OrderItem et Status, avec le même import que tes autres modèles (Restaurant, Produit...)
+
+# ---------- Commandes de démo ----------
+# Pour chaque restaurant : des commandes à traiter (dont une en retard), en préparation et prêtes pour la cuisine,
+# plus des commandes terminées (collected / cancelled) pour tester la page de suivi.
+# order_number fixe : sert à vérifier si la commande existe déjà (seed idempotent) et à la retrouver pendant la démo.
+# il_y_a : âge de la commande en minutes au premier démarrage (pending depuis 10 min ou plus = alerte rouge en cuisine).
+# articles : (position du produit dans la carte du restaurant, quantité) -> pas besoin de connaître les id en base.
+COMMANDES = [
+    # ----- Aix (restaurant 1) -----
+    {"order_number": "YC-AIX00001", "restaurant_id": 1, "status": "pending", "pickup_mode": "takeaway", "il_y_a": 2,
+     "client": "Léa Martin", "email": "lea.martin@example.com", "articles": [(0, 2), (3, 1)]},
+    {"order_number": "YC-AIX00002", "restaurant_id": 1, "status": "pending", "pickup_mode": "onsite", "il_y_a": 14,
+     "client": "Hugo Bernard", "email": "hugo.bernard@example.com", "articles": [(1, 1)]},
+    {"order_number": "YC-AIX00003", "restaurant_id": 1, "status": "validated", "pickup_mode": "takeaway", "il_y_a": 6,
+     "client": "Chloé Petit", "email": "chloe.petit@example.com", "articles": [(2, 1), (4, 2)]},
+    {"order_number": "YC-AIX00004", "restaurant_id": 1, "status": "preparing", "pickup_mode": "onsite", "il_y_a": 9,
+     "client": "Nathan Roux", "email": "nathan.roux@example.com", "articles": [(0, 1), (1, 1), (5, 1)]},
+    {"order_number": "YC-AIX00005", "restaurant_id": 1, "status": "ready", "pickup_mode": "takeaway", "il_y_a": 18,
+     "client": "Inès Moreau", "email": "ines.moreau@example.com", "articles": [(3, 3)]},
+    {"order_number": "YC-AIX00006", "restaurant_id": 1, "status": "collected", "pickup_mode": "onsite", "il_y_a": 75,
+     "client": "Lucas Girard", "email": "lucas.girard@example.com", "articles": [(0, 1), (2, 1)]},
+    # ----- Lyon (restaurant 2) -----
+    {"order_number": "YC-LYO00001", "restaurant_id": 2, "status": "pending", "pickup_mode": "onsite", "il_y_a": 4,
+     "client": "Manon Fournier", "email": "manon.fournier@example.com", "articles": [(0, 1), (1, 2)]},
+    {"order_number": "YC-LYO00002", "restaurant_id": 2, "status": "pending", "pickup_mode": "takeaway", "il_y_a": 12,
+     "client": "Louis Lambert", "email": "louis.lambert@example.com", "articles": [(2, 1)]},
+    {"order_number": "YC-LYO00003", "restaurant_id": 2, "status": "preparing", "pickup_mode": "takeaway", "il_y_a": 7,
+     "client": "Camille Faure", "email": "camille.faure@example.com", "articles": [(1, 1), (3, 1)]},
+    {"order_number": "YC-LYO00004", "restaurant_id": 2, "status": "ready", "pickup_mode": "onsite", "il_y_a": 15,
+     "client": "Jules Mercier", "email": "jules.mercier@example.com", "articles": [(0, 2)]},
+    {"order_number": "YC-LYO00005", "restaurant_id": 2, "status": "cancelled", "pickup_mode": "takeaway", "il_y_a": 40,
+     "client": "Sarah Blanc", "email": "sarah.blanc@example.com", "articles": [(2, 1), (3, 1)]},
+    # ----- Paris (restaurant 3) -----
+    {"order_number": "YC-PAR00001", "restaurant_id": 3, "status": "pending", "pickup_mode": "takeaway", "il_y_a": 1,
+     "client": "Adam Garnier", "email": "adam.garnier@example.com", "articles": [(0, 1), (2, 1)]},
+    {"order_number": "YC-PAR00002", "restaurant_id": 3, "status": "validated", "pickup_mode": "onsite", "il_y_a": 11,
+     "client": "Zoé Chevalier", "email": "zoe.chevalier@example.com", "articles": [(1, 2)]},
+    {"order_number": "YC-PAR00003", "restaurant_id": 3, "status": "preparing", "pickup_mode": "onsite", "il_y_a": 5,
+     "client": "Gabriel Robin", "email": "gabriel.robin@example.com", "articles": [(0, 1), (1, 1), (3, 2)]},
+    {"order_number": "YC-PAR00004", "restaurant_id": 3, "status": "ready", "pickup_mode": "takeaway", "il_y_a": 20,
+     "client": "Jade Muller", "email": "jade.muller@example.com", "articles": [(2, 1)]},
+    {"order_number": "YC-PAR00005", "restaurant_id": 3, "status": "collected", "pickup_mode": "takeaway", "il_y_a": 120,
+     "client": "Raphaël Henry", "email": "raphael.henry@example.com", "articles": [(3, 1), (0, 1)]},
+]
+
+
+def seed_commandes(db: Session):
+    for c in COMMANDES:
+        # Déjà en base : on ne la recrée pas (le seed tourne à chaque démarrage)
+        if db.query(Order).filter(Order.order_number == c["order_number"]).first():
+            continue
+
+        # Carte du restaurant, triée par id pour que les positions donnent toujours les mêmes produits
+        produits = db.query(Produit).filter(Produit.restaurant_id == c["restaurant_id"]).order_by(Produit.id).all()
+        if not produits:
+            continue  # restaurant sans produit : rien à commander
+
+        # % len(produits) : reste dans la liste même si le restaurant a moins de produits que la position demandée.
+        # Un produit tiré deux fois est regroupé sur une seule ligne (sinon doublon de key côté React en cuisine).
+        quantites = {}
+        for position, quantite in c["articles"]:
+            produit = produits[position % len(produits)]
+            quantites[produit] = quantites.get(produit, 0) + quantite
+
+        # Prix figé copié depuis le produit en base, comme dans POST /orders ; total calculé côté serveur
+        lignes = []
+        total = Decimal("0")
+        for produit, quantite in quantites.items():
+            lignes.append(OrderItem(product_id=produit.id, quantity=quantite, prix_fige_commande=produit.price))
+            total += produit.price * quantite
+
+        db.add(Order(
+            order_number=c["order_number"],
+            restaurant_id=c["restaurant_id"],
+            created_at=datetime.now(timezone.utc) - timedelta(minutes=c["il_y_a"]),
+            status=Status(c["status"]),  # Status("pending") -> Status.pending
+            pickup_mode=c["pickup_mode"],
+            customer_name=c["client"],
+            customer_email=c["email"],
+            total_price=total,
+            order_items=lignes,  # relationship : les lignes sont enregistrées avec la commande
+        ))
     db.commit()

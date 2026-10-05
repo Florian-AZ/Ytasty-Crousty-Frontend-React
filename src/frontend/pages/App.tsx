@@ -1,7 +1,6 @@
 import { useSelector } from "react-redux";
 import type { RootState } from "../store/store";
 import {
-  Box,
   Button,
   Card,
   CardContent,
@@ -14,8 +13,10 @@ import YTastyCroustyAix from "../assets/YTastyCroustyAix.png";
 import YTastyCroustyLyon from "../assets/YTastyCroustyLyon.png";
 import YTastyCroustyParis from "../assets/YTastyCroustyParis.png";
 import PhoneIcon from "@mui/icons-material/Phone";
+import { useNavigate } from "react-router-dom";
 
 function App() {
+  const navigate = useNavigate();
   const restaurants = useSelector((state: RootState) => state.restaurants);
   const aujourdhui = new Date(Date.now());
   const heureAujourdhui = aujourdhui.getHours();
@@ -123,8 +124,11 @@ function App() {
                     Tél : {restaurant.contact}
                   </Typography>
                   <Button
+                    onClick={() =>
+                      navigate(`/produits?restaurant=${restaurant.id}`)
+                    }
                     variant="contained"
-                    disabled={!verifHoraires(restaurant.opening_hours)}
+                    //disabled={!verifHoraires(restaurant.opening_hours)}
                     sx={{ mt: 2 }}
                   >
                     Commander
