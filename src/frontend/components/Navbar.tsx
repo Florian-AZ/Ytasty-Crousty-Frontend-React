@@ -68,7 +68,7 @@ export default function Navbar() {
                                         Nos Plats
                                     </Button>
                                 </Link>
-                                <Link to={"/produits"}>
+                                <Link to={"/Validation"}>
                                     <Button variant="text" color="primary" size="small">
                                         Commander
                                     </Button>
