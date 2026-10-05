@@ -1,10 +1,9 @@
-// KitchenDashboard.tsx : tableau de bord cuisine du back office.
+// Cuisine.tsx : tableau de bord cuisine du back office.
 // Affiche les commandes en cours d'un restaurant en 3 colonnes (à traiter, en préparation, prêtes),
 // avec des boutons pour faire avancer le statut en un clic ou annuler la commande.
 // Staff : uniquement son restaurant. Admin et direction : choix du restaurant. Direction : lecture seule.
 import {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
-import axios from "axios";
 import {
     Alert, Box, Button, Card, CardActions, CardContent, Chip, Dialog, DialogActions, DialogContent,
     DialogContentText, DialogTitle, FormControl, Grid, InputLabel, MenuItem, Paper, Select, Stack, Typography,
@@ -14,6 +13,7 @@ import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import {api} from "../services/api.ts";
 import type {Order} from "../types/order.ts";
 import type {RootState} from "../store/store.ts";
+import {messageErreur} from "../utils/erreur.ts";
 
 // Order["status"] : réutilise le type du champ status d'une commande ("pending" | "validated" | ...)
 type Statut = Order["status"];
@@ -42,13 +42,6 @@ const ACTION_SUIVANTE: Partial<Record<Statut, { label: string; suivant: Statut }
 // Minutes écoulées depuis la création de la commande (jamais négatif)
 const minutesDepuis = (iso: string, maintenant: number) =>
     Math.max(0, Math.floor((maintenant - new Date(iso).getTime()) / 60_000));
-
-// Message lisible à partir d'une erreur de l'API
-const messageErreur = (e: unknown): string => {
-    if (axios.isAxiosError(e) && e.response?.status === 403) return "Vous n'avez pas les droits sur ce restaurant.";
-    if (axios.isAxiosError(e) && e.response?.status === 400) return e.response.data.detail;
-    return "L'action a échoué. Veuillez réessayer.";
-};
 
 function cuisine() {
     const user = useSelector((state: RootState) => state.userLogged.userLogged);
