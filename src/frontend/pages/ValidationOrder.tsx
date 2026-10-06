@@ -233,64 +233,67 @@ function ValidationOrder() {
 
           <FormControl>
             <FormLabel>Mode de retrait</FormLabel>
-
-            <Grid container spacing={2}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Card
-                  variant="outlined"
+            {/* Les deux cartes côte à côte, centrées ; l'une sous l'autre sur mobile */}
+            <Stack
+                direction={{xs: "column", sm: "row"}}
+                spacing={2}
+                sx={{justifyContent: "center", alignItems: "center"}}
+            >
+              <Card
                   sx={{
-                    borderColor:
-                      pickupMode === "onsite" ? "primary.main" : "divider",
+                    width: 250,
+                    height: 300,
+                    border: 2,
+                    borderColor: pickupMode === "takeaway" ? "primary.main" : "transparent",
                   }}
-                >
-                  <CardActionArea onClick={() => setPickupMode("onsite")}>
-                    <CardMedia
-                      component="img"
-                      image={onsiteImg}
-                      alt="Sur place"
-                      sx={{
-                        height: 150,
-                        objectFit: "contain",
-                      }}
-                    />
+              >
+                <CardActionArea sx={{
+                  height: "100%",               // la zone cliquable remplit toute la carte
+                  display: "flex",
+                  flexDirection: "column",      // image puis texte, l'un sous l'autre
+                  justifyContent: "flex-start", // collés en haut au lieu d'être centrés
+                  alignItems: "stretch",
+                }} onClick={() => setPickupMode("takeaway")}>
+                  <CardMedia component="img" height="140" image={takeawayImg} alt="À emporter"/>
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                      À emporter
+                    </Typography>
+                    <Typography variant="body2" sx={{color: "text.secondary"}}>
+                      Récupérez votre commande <br/>
+                      au restaurant
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
 
-                    <CardContent>
-                      <Typography align="center" variant="h6">
-                        Sur place
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Card
-                  variant="outlined"
+              <Card
                   sx={{
-                    borderColor:
-                      pickupMode === "takeaway" ? "primary.main" : "divider",
+                    width: 250,
+                    height: 300,
+                    border: 2,
+                    borderColor: pickupMode === "onsite" ? "primary.main" : "transparent",
                   }}
-                >
-                  <CardActionArea onClick={() => setPickupMode("takeaway")}>
-                    <CardMedia
-                      component="img"
-                      image={takeawayImg}
-                      alt="À emporter"
-                      sx={{
-                        height: 150,
-                        objectFit: "contain",
-                      }}
-                    />
-
-                    <CardContent>
-                      <Typography align="center" variant="h6">
-                        À emporter
-                      </Typography>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              </Grid>
-            </Grid>
+              >
+                <CardActionArea sx={{
+                  height: "100%",               // la zone cliquable remplit toute la carte
+                  display: "flex",
+                  flexDirection: "column",      // image puis texte, l'un sous l'autre
+                  justifyContent: "flex-start", // collés en haut au lieu d'être centrés
+                  alignItems: "stretch",
+                }} onClick={() => setPickupMode("onsite")}>
+                  <CardMedia component="img" height="140" image={onsiteImg} alt="Sur place"/>
+                  <CardContent>
+                    <Typography gutterBottom variant="h5" component="div">
+                      Sur place
+                    </Typography>
+                    <Typography variant="body2" sx={{color: "text.secondary"}}>
+                      Mangez au restaurant
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            </Stack>
           </FormControl>
           <Stack spacing={2}>
             <TextField
