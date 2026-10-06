@@ -232,7 +232,10 @@ function ValidationOrder() {
           </Typography>
 
           <FormControl>
-            <FormLabel>Mode de retrait</FormLabel>
+            <FormLabel id="pickup-mode-label" sx={{mb: 2, textAlign: "center"}}>
+              Mode de retrait
+            </FormLabel>
+
             {/* Les deux cartes côte à côte, centrées ; l'une sous l'autre sur mobile */}
             <Stack
                 direction={{xs: "column", sm: "row"}}
