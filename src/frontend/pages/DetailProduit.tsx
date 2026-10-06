@@ -6,7 +6,7 @@ import {
   Skeleton,
   Typography,
 } from "@mui/material";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "../store/store";
 import { ajouterPanier, retirerPanier } from "../store/reducers/panier";
@@ -16,9 +16,9 @@ function ProductDetail() {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const produit = useSelector((state: RootState) =>
-    state.products.products.find((produit) => produit.id === Number(id)),
-  );
+  const produits = useSelector((state: RootState) => state.products.products);
+
+  const produit = produits.find((produit) => produit.id === Number(id));
 
   const restaurant = useSelector((state: RootState) =>
     state.restaurants.restaurants.find(
@@ -32,7 +32,7 @@ function ProductDetail() {
     (element) => element.produit.id === produit?.id,
   );
 
-  if (!produit) {
+  if (produits.length === 0) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
         <Skeleton variant="rounded" height={500} />
@@ -40,6 +40,9 @@ function ProductDetail() {
     );
   }
 
+  if (!produit) {
+    return <Navigate to="/erreur/404" replace />;
+  }
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Button
