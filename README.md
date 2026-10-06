@@ -33,6 +33,7 @@ présentée dans la section [API](#api).
 | État global         | Redux Toolkit, React Redux                      |
 | Navigation          | React Router (`createBrowserRouter`)            |
 | Appels API          | axios (instance unique avec l'adresse de l'API) |
+| Temps réel          | Socket.io : `socket.io-client` côté navigateur, serveur python-socketio |
 
 ---
 
@@ -112,6 +113,8 @@ npm run dev
 
 L'adresse de l'API est définie une seule fois dans `src/frontend/services/api.ts` (`baseURL` de l'instance axios).
 
+Pour le temps réel, le serveur Socket.io doit aussi tourner, sur le port 4001 (voir [Temps réel](#temps-réel-socketio)).
+
 ### Autres commandes
 
 | Commande          | Rôle                                                                     |
@@ -148,19 +151,25 @@ D'autres comptes peuvent être créés depuis le back-office (« Créer un utili
 
 ### Parcours client
 
-- **Carte** : produits du restaurant avec photo, prix, catégorie et disponibilité ; squelettes de chargement
-  (`Skeleton`).
-- **Panier** : ajout et retrait des produits, total calculé.
-- **Validation de commande** : nom et e-mail validés, choix du restaurant et du mode de retrait (sur place ou à
-  emporter), envoi à l'API sans compte client.
+- **Carte** (`/produits`) : choix du restaurant, recherche par nom, filtres par catégorie et « disponibles
+  uniquement ». Les filtres sont conservés dans l'URL (`?restaurant=1&q=...`) : la page peut être partagée et le bouton
+  retour du navigateur fonctionne. Squelettes de chargement (`Skeleton`) pendant l'arrivée des données.
+- **Détail d'un produit** : photo, description, prix, catégorie, ingrédients, disponibilité du produit et ouverture du
+  restaurant. Un produit inexistant redirige vers la page d'erreur 404.
+- **Panier** : icône avec le nombre d'articles dans le header et panier latéral (quantités +/−, total, accès à la
+  validation). Un panier ne contient que les produits d'un seul restaurant : changer de restaurant demande une
+  confirmation et vide le panier. L'ajout est bloqué si le produit est indisponible ou si le restaurant est fermé.
+- **Validation de commande** : récapitulatif du panier, mode de retrait (sur place ou à emporter), nom et e-mail
+  validés, envoi à l'API sans compte client. Le restaurant est celui des produits du panier ; le panier est vidé une fois
+  la commande acceptée.
 - **Suivi de commande** : saisie du numéro (`YC-XXXXXXXX`) ou accès direct par l'URL `/order/:order_number` ; `Stepper`
   d'avancement, badge de statut, récapitulatif des articles, mode de retrait et total payé.
 
 ### Back-office (`/back-office`, routes protégées)
 
 - **Tableau de bord cuisine** : commandes en cours en 3 colonnes (à traiter, en préparation, prêtes), avancement du
-  statut en un clic, annulation avec confirmation, alerte rouge sur les commandes en attente depuis plus de 10 minutes,
-  liste mise à jour automatiquement.
+  statut en un clic, annulation avec confirmation, alerte rouge sur les commandes en attente depuis plus de 10 minutes.
+  Les nouvelles commandes arrivent en temps réel, avec une sonnerie (voir [Temps réel](#temps-réel-socketio)).
 - **Gestion de la carte** (`/back-office/carte`) :
   - `staff` : switch de disponibilité pour signaler une rupture ;
   - `admin` : création, modification (prix, ingrédients, image...) et suppression des produits, dans tous les
@@ -177,11 +186,11 @@ D'autres comptes peuvent être créés depuis le back-office (« Créer un utili
 │   └── images/              # photos des produits (chemins /images/... enregistrés en base)
 ├── src/frontend/
 │   ├── assets/              # logos, mascotte, images importées dans le code
-│   ├── components/          # composants réutilisables : ProductCard, KitchenDashboard,
+│   ├── components/          # composants réutilisables : Navbar (et panier latéral), ProductCard,
 │   │                        #   ProtectedRoute, formulaire produit...
 │   ├── pages/               # pages et déclaration des routes (App.tsx)
-│   ├── services/            # api.ts (axios), auth.ts (JWT)
-│   ├── store/               # store Redux Toolkit et slices
+│   ├── services/            # api.ts (axios), auth.ts (JWT), socketService.ts (Socket.io)
+│   ├── store/               # store Redux Toolkit et reducers (restaurants, produits, panier...)
 │   ├── theme/               # thème MUI
 │   ├── types/               # interfaces TypeScript calquées sur le JSON de l'API
 │   └── utils/               # format.ts (prix, dates), validation.ts, erreur.ts
@@ -192,7 +201,8 @@ D'autres comptes peuvent être créés depuis le back-office (« Créer un utili
 - **Pages** : un écran par route (catalogue, validation de commande, suivi, back-office, gestion de la carte...).
 - **Composants** : briques réutilisées par plusieurs pages, par exemple `ProductCard` affiche un produit à partir de son
   seul `id`, en le lisant dans le store Redux.
-- **Services** : tous les appels à l'API passent par `api.ts`, l'authentification par `auth.ts`.
+- **Services** : tous les appels à l'API passent par `api.ts`, l'authentification par `auth.ts`, le temps réel par
+  `socketService.ts`.
 - **Utils** : fonctions pures sans React (formatage en euros et en dates françaises avec `Intl`, validation de l'e-mail
   et du numéro de commande, messages d'erreur lisibles selon le code HTTP).
 
@@ -228,7 +238,7 @@ D'autres comptes peuvent être créés depuis le back-office (« Créer un utili
 | `userLogged`  | utilisateur connecté (issu du token)                                                 |
 | `restaurants` | liste des restaurants                                                                |
 | `products`    | carte, utilisée par le catalogue et pour afficher le nom des produits d'une commande |
-| `panier`      | produits ajoutés au panier par le client, jusqu'à la validation de la commande       |
+| `panier`      | articles du panier (`{ produit, quantite }`) ; actions `ajouterPanier`, `retirerPanier`, `viderPanier` |
 | `loading`     | vérification de session en cours au démarrage                                        |
 
 Les données propres à une seule page (commandes de la cuisine, formulaire, produits en gestion) restent dans un
@@ -246,7 +256,46 @@ Les données propres à une seule page (commandes de la cuisine, formulaire, pro
 
 ## Temps réel (Socket.io)
 
-_Partie réalisée par Florian. Section à compléter : option choisie, fonctionnement, événements échangés et lancement._
+_Partie réalisée par Florian._
+
+### Option choisie : A, écran cuisine live
+
+Dès qu'un client valide sa commande, le tableau de bord cuisine du restaurant concerné est prévenu instantanément :
+une sonnerie retentit et la commande apparaît dans la colonne « À traiter », sans action du personnel ni
+rechargement de la page.
+
+### Architecture
+
+- **Serveur** : serveur Socket.io écrit en Python avec
+  [python-socketio](https://python-socketio.readthedocs.io/en/stable/server.html), à l'écoute sur le port **4001**.
+- **Client** : `socket.io-client`, avec une connexion unique partagée par toute l'application grâce au patron
+  **Singleton** (`services/socketService.ts`) : `SocketService.getInstance().socket` renvoie toujours le même socket,
+  et son constructeur privé interdit d'en créer un second.
+- **L'API reste la seule source de vérité** : à chaque notification, l'écran cuisine recharge ses commandes avec
+  `GET /restaurants/{id}/orders` au lieu de se fier au contenu du message.
+
+### Événements
+
+| Événement      | Sens                         | Contenu                                    | Moment                                           |
+|----------------|------------------------------|--------------------------------------------|--------------------------------------------------|
+| `user_login`   | écran cuisine → serveur      | `{ token, restaurant_id }` (JWT du compte) | connexion du socket, et chaque reconnexion       |
+| `new_order`    | page de validation → serveur | numéro de la commande créée                | juste après un `POST /orders` réussi             |
+| `new_order`    | serveur → écrans cuisine     | la commande                                | dès qu'une commande est annoncée                 |
+| `socket_error` | serveur → écran cuisine      | message d'erreur                           | refus du serveur                                 |
+| `logout`       | écran cuisine → serveur      | —                                          | fermeture de l'écran ou changement de restaurant |
+
+### Comportement de l'écran cuisine
+
+- Les commandes d'un autre restaurant sont ignorées (`restaurant_id` comparé à celui affiché).
+- La sonnerie repart du début à chaque commande, pour retentir même si plusieurs commandes arrivent à la suite.
+  Les navigateurs bloquent le son tant que l'utilisateur n'a pas cliqué sur la page : un clic sur l'écran cuisine suffit.
+- Un rechargement de secours toutes les 15 secondes rattrape les commandes manquées (coupure de connexion, commande
+  créée en dehors du front, par exemple depuis Swagger).
+- Les erreurs envoyées par le serveur (`socket_error`) s'affichent dans une alerte.
+
+### Lancement
+
+_Commande de lancement du serveur Socket.io : à compléter._
 
 ---
 
